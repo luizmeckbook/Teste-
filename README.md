@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<! ÁGUA E GELO DO JORGE>
 <html>
 <head>
   <title>Água e Gelo do Jorge</title>
@@ -8,18 +8,24 @@
     body {
       margin: 0;
       font-family: Arial;
-      background: #0a0a0a;
-      color: white;
+      background: #f5f5f5;
     }
 
     header {
-      background: #00bfff;
+      background: linear-gradient(90deg, #00bfff, #00ffff);
       padding: 20px;
       text-align: center;
       color: black;
       font-weight: bold;
-      font-size: 20px;
-      animation: fadeDown 1s;
+      font-size: 22px;
+    }
+
+    .banner {
+      background: #00bfff;
+      color: black;
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
     }
 
     .container {
@@ -27,19 +33,22 @@
     }
 
     .produto {
-      background: #111;
+      background: white;
       margin-bottom: 15px;
       padding: 15px;
       border-radius: 12px;
       display: flex;
       align-items: center;
       gap: 10px;
-      animation: fadeUp 1s;
+      box-shadow: 0 0 10px #ccc;
+      animation: fadeUp 0.8s ease;
     }
 
     .produto img {
       width: 80px;
       border-radius: 10px;
+      background: white;
+      padding: 10px;
     }
 
     .info {
@@ -47,7 +56,7 @@
     }
 
     .preco {
-      color: #00ffcc;
+      color: green;
       font-weight: bold;
     }
 
@@ -77,10 +86,10 @@
 
     input {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin-bottom: 10px;
       border-radius: 8px;
-      border: none;
+      border: 1px solid #ccc;
     }
 
     .carrinho {
@@ -93,19 +102,12 @@
       border-radius: 30px;
       font-weight: bold;
       box-shadow: 0 0 10px #000;
-      animation: fadeUp 1s;
-    }
-
-    @keyframes fadeDown {
-      from {opacity:0; transform:translateY(-20px);}
-      to {opacity:1; transform:translateY(0);}
     }
 
     @keyframes fadeUp {
       from {opacity:0; transform:translateY(20px);}
       to {opacity:1; transform:translateY(0);}
     }
-
   </style>
 </head>
 
@@ -115,11 +117,15 @@
   🧊 Água e Gelo do Jorge
 </header>
 
+<div class="banner">
+  🚚 Entrega rápida na sua região
+</div>
+
 <div class="container">
 
-  <!-- PRODUTO 1 -->
+  <!-- GELO -->
   <div class="produto">
-    <img src="https://images.unsplash.com/photo-1604908177522-432f2b2c7e0d">
+    <img src="https://cdn-icons-png.flaticon.com/512/1046/1046857.png">
     <div class="info">
       <h3>Saco de Gelo</h3>
       <p class="preco">R$10</p>
@@ -131,11 +137,11 @@
     </div>
   </div>
 
-  <!-- PRODUTO 2 -->
+  <!-- ÁGUA -->
   <div class="produto">
-    <img src="https://images.unsplash.com/photo-1560840875-3d7a2e6b8c1e">
+    <img src="https://cdn-icons-png.flaticon.com/512/3103/3103446.png">
     <div class="info">
-      <h3>Água Mineral</h3>
+      <h3>Galão de Água</h3>
       <p class="preco">R$5</p>
     </div>
     <div class="controls">
@@ -159,7 +165,7 @@
 <script>
   let carrinho = {
     gelo: {qtd: 0, preco: 10, nome: "Saco de Gelo"},
-    agua: {qtd: 0, preco: 5, nome: "Água Mineral"}
+    agua: {qtd: 0, preco: 5, nome: "Galão de Água"}
   };
 
   function adicionar(item, preco) {
