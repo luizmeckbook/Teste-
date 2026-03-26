@@ -29,41 +29,16 @@ button{
   width:90%;
 }
 
+.link{
+  color:blue;
+  margin-top:10px;
+  display:block;
+}
+
 .header{
   background:#e53935;
   color:white;
   padding:20px;
-}
-
-.produtos{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  padding:10px;
-}
-
-.produto{
-  background:white;
-  padding:10px;
-  border-radius:10px;
-  text-align:center;
-}
-
-.produto img{
-  width:100%;
-  height:120px;
-  object-fit:cover;
-}
-
-.nav{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:white;
-  display:flex;
-  justify-content:space-around;
-  padding:10px;
-  border-top:1px solid #ccc;
 }
 </style>
 </head>
@@ -73,89 +48,113 @@ button{
 <!-- LOGIN -->
 <div id="login" class="tela login">
   <h2>🛒 Medela</h2>
-  <input id="cpf" placeholder="CPF">
-  <input id="senha" type="password" placeholder="Senha">
+  <input id="cpfLogin" placeholder="CPF">
+  <input id="senhaLogin" type="password" placeholder="Senha">
   <button onclick="entrar()">Entrar</button>
+  <span class="link" onclick="ir('cadastro')">Criar conta</span>
+</div>
+
+<!-- CADASTRO -->
+<div id="cadastro" class="tela login">
+  <h2>Cadastrar</h2>
+  <input id="nomeCad" placeholder="Nome completo">
+  <input id="cpfCad" placeholder="CPF">
+  <input id="senhaCad" type="password" placeholder="Senha">
+  <button onclick="cadastrar()">Cadastrar</button>
+  <span class="link" onclick="ir('login')">Voltar</span>
 </div>
 
 <!-- HOME -->
 <div id="home" class="tela">
   <div class="header">
-    <h3 id="userNome">Bem-vindo 👋</h3>
+    <h3 id="userNome"></h3>
   </div>
 
-  <div class="produtos" id="produtos"></div>
-
-  <div class="nav">
-    <div onclick="ir('home')">🏠</div>
-    <div onclick="sair()">🚪</div>
+  <div style="padding:20px;">
+    <h2>Bem-vindo ao Medela 🛒</h2>
+    <button onclick="sair()">Sair</button>
   </div>
 </div>
 
 <script>
-let produtos = [
-  {nome:"Carne", preco:30, img:"https://i.imgur.com/7yUvePI.png"},
-  {nome:"Frango", preco:12, img:"https://i.imgur.com/2nCt3Sbl.jpg"}
-];
 
-/* VERIFICAR LOGIN AO ABRIR */
+/* AO ABRIR */
 window.onload = function(){
-  let user = localStorage.getItem("user");
+  let logado = JSON.parse(localStorage.getItem("logado"));
 
-  if(user){
+  if(logado){
+    document.getElementById("userNome").innerText = "Olá, " + logado.nome;
     ir("home");
-    document.getElementById("userNome").innerText = "Olá, " + user;
   }else{
     ir("login");
   }
 };
 
-/* LOGIN */
-function entrar(){
-  let cpf = document.getElementById("cpf").value.trim();
-  let senha = document.getElementById("senha").value.trim();
-
-  if(cpf === "" || senha === ""){
-    alert("Preencha CPF e senha!");
-    return;
-  }
-
-  localStorage.setItem("user", cpf);
-
-  document.getElementById("userNome").innerText = "Olá, " + cpf;
-
-  ir("home");
-}
-
 /* TROCAR TELA */
 function ir(tela){
   document.querySelectorAll(".tela").forEach(t=>t.classList.remove("ativa"));
   document.getElementById(tela).classList.add("ativa");
-
-  if(tela=="home") carregarProdutos();
 }
 
-/* PRODUTOS */
-function carregarProdutos(){
-  let div = document.getElementById("produtos");
-  div.innerHTML="";
+/* CADASTRAR */
+function cadastrar(){
+  let nome = document.getElementById("nomeCad").value.trim();
+  let cpf = document.getElementById("cpfCad").value.trim();
+  let senha = document.getElementById("senhaCad").value.trim();
 
-  produtos.forEach(p=>{
-    div.innerHTML += `
-      <div class="produto">
-        <img src="${p.img}">
-        <p>${p.nome}</p>
-        <b>R$ ${p.preco}</b>
-      </div>
-    `;
-  });
+  if(nome=="" || cpf=="" || senha==""){
+    alert("Preencha tudo!");
+    return;
+  }
+
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
+
+  if(usuarios[cpf]){
+    alert("CPF já cadastrado!");
+    return;
+  }
+
+  usuarios[cpf] = { nome: nome, senha: senha };
+
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+  alert("Cadastro realizado!");
+  ir("login");
+}
+
+/* LOGIN */
+function entrar(){
+  let cpf = document.getElementById("cpfLogin").value.trim();
+  let senha = document.getElementById("senhaLogin").value.trim();
+
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
+
+  if(!usuarios[cpf]){
+    alert("CPF não cadastrado!");
+    return;
+  }
+
+  if(usuarios[cpf].senha !== senha){
+    alert("Senha incorreta!");
+    return;
+  }
+
+  localStorage.setItem("logado", JSON.stringify({
+    cpf: cpf,
+    nome: usuarios[cpf].nome
+  }));
+
+  document.getElementById("userNome").innerText = "Olá, " + usuarios[cpf].nome;
+
+  ir("home");
 }
 
 /* SAIR */
 function sair(){
-  localStorage.removeItem("user");
+  localStorage.removeItem("logado");
   location.reload();
 }
+
 </script>
 
 </body>
