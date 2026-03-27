@@ -12,7 +12,7 @@
         .active { display: flex; flex-direction: column; }
         .container { padding: 25px; max-width: 450px; margin: 0 auto; width: 100%; box-sizing: border-box; }
         
-        /* LOGIN & CADASTRO (Estilo Imagem) */
+        /* LOGIN & CADASTRO */
         .logo-main { text-align: center; margin: 40px 0 20px 0; }
         .logo-main img { width: 220px; }
         .welcome-text { text-align: center; color: #666; font-size: 15px; margin-bottom: 30px; }
@@ -25,7 +25,7 @@
         .btn-green { background: var(--primary-green); color: white; border: none; width: 100%; padding: 16px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn-outline { background: white; color: var(--primary-green); border: 1px solid #ddd; margin-top: 15px; padding: 12px; border-radius: 8px; font-weight: 500; cursor: pointer; width: 100%; }
 
-        /* HEADER LARANJA (Estilo Imagem 1000785235) */
+        /* HEADER LARANJA */
         .header-orange { background: var(--orange-header); padding: 45px 25px 35px 25px; color: white; border-radius: 0 0 35px 35px; }
         .header-orange h2 { margin: 0; font-size: 24px; }
         .header-orange p { margin: 8px 0 0 0; opacity: 0.9; font-size: 14px; }
@@ -129,8 +129,7 @@
             <p>Finalize sua compra</p>
         </div>
         <div class="container" id="cart-list" style="padding-bottom: 180px;">
-            <p style="text-align:center; color:#999; margin-top:50px;">Seu carrinho está vazio.</p>
-        </div>
+            </div>
         
         <div class="footer-cart" id="cart-footer" style="display:none;">
             <div style="margin-bottom:15px;">
@@ -151,7 +150,7 @@
     </section>
 
     <nav class="bottom-nav">
-        <button class="nav-item nav-active" id="nav-login-btn" onclick="irPara('screen-login')">LOGIN</button>
+        <button class="nav-item nav-active" id="nav-main-btn" onclick="navegarPrincipal()">LOGIN</button>
         <button class="nav-item" id="nav-cart-btn" onclick="irPara('screen-cart')">CARRINHO<span id="cart-count" class="cart-badge">0</span></button>
         <button class="nav-item" onclick="location.reload()">SAIR</button>
     </nav>
@@ -160,40 +159,49 @@
         let carrinho = [];
         let usuarioLogado = null;
 
+        // Função de controle de navegação inteligente
+        function navegarPrincipal() {
+            if (usuarioLogado) {
+                irPara('screen-home');
+            } else {
+                irPara('screen-login');
+            }
+        }
+
         function irPara(id) {
             document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
             
             document.getElementById(id).classList.add('active');
             
-            // Gerencia os nomes da barra de navegação
-            if(id === 'screen-home' || id === 'screen-login') {
-                document.getElementById('nav-login-btn').classList.add('nav-active');
+            // Destaca o botão correto na barra inferior
+            if(id === 'screen-home' || id === 'screen-login' || id === 'screen-register') {
+                document.getElementById('nav-main-btn').classList.add('nav-active');
             } else if(id === 'screen-cart') {
                 document.getElementById('nav-cart-btn').classList.add('nav-active');
                 renderizarCarrinho();
             }
+            window.scrollTo(0,0);
         }
 
         function executarLogin() {
             const id = document.getElementById('login-id').value;
-            const user = JSON.parse(localStorage.getItem(id));
+            if(id.length < 3) return alert("Por favor, insira um CPF válido.");
+
+            const userSalvo = JSON.parse(localStorage.getItem(id));
+            usuarioLogado = userSalvo || { nome: "Cliente", endereco: "Não informado", tel: "2199999999" };
+
+            document.getElementById('user-display').innerText = "Olá, " + usuarioLogado.nome.split(' ')[0] + "!";
             
-            // Para teste, se o campo não estiver vazio, deixa passar
-            if(id.length > 3) {
-                usuarioLogado = user || { nome: "Cliente", endereco: "Não informado", tel: "2199999999" };
-                document.getElementById('user-display').innerText = "Olá, " + usuarioLogado.nome.split(' ')[0] + "!";
-                document.getElementById('nav-login-btn').innerText = "PRODUTOS";
-                irPara('screen-home');
-            } else {
-                alert("Por favor, insira seus dados.");
-            }
+            // ATUALIZAÇÃO CRUCIAL: Muda o texto do menu para PRODUTOS e vai para a home
+            document.getElementById('nav-main-btn').innerText = "PRODUTOS";
+            irPara('screen-home');
         }
 
         function finalizarCadastro() {
             const cpf = document.getElementById('reg-cpf').value;
             const nome = document.getElementById('reg-nome').value;
-            if(!cpf || !nome) return alert("Preencha os campos!");
+            if(!cpf || !nome) return alert("Preencha os campos obrigatórios!");
             
             const dados = {
                 nome: nome,
@@ -202,7 +210,7 @@
                 endereco: document.getElementById('reg-endereco').value
             };
             localStorage.setItem(cpf, JSON.stringify(dados));
-            alert("Cadastro realizado!");
+            alert("Cadastro realizado com sucesso!");
             irPara('screen-login');
         }
 
@@ -216,12 +224,17 @@
 
         function addAoCarrinho(nome, preco) {
             if(!usuarioLogado) {
-                alert("Faça login para adicionar produtos!");
+                alert("Acesse sua conta para comprar!");
                 irPara('screen-login');
                 return;
             }
             carrinho.push({ nome, preco });
             document.getElementById('cart-count').innerText = carrinho.length;
+            
+            // Feedback visual no botão
+            const btn = event.target;
+            btn.innerText = "adicionado!";
+            setTimeout(() => btn.innerText = "adicionar", 1000);
         }
 
         function renderizarCarrinho() {
@@ -241,11 +254,11 @@
                 list.innerHTML += `
                     <div class="cart-item">
                         <div><strong>${item.nome}</strong><br><small>R$ ${item.preco.toFixed(2)}</small></div>
-                        <button onclick="removerItem(${index})" style="background:none; border:none; color:red; font-weight:bold;">Remover</button>
+                        <button onclick="removerItem(${index})" style="background:none; border:none; color:red; font-weight:bold; cursor:pointer;">Remover</button>
                     </div>`;
             });
 
-            document.getElementById('cart-total').innerText = (total + 5).toFixed(2); // +5 de taxa exemplo
+            document.getElementById('cart-total').innerText = (total + 5).toFixed(2); // Exemplo com 5 reais de entrega
             footer.style.display = "block";
         }
 
@@ -256,11 +269,16 @@
         }
 
         function enviarPedido() {
-            let msg = `*NOVO PEDIDO - MEU TERÊ*\n\nCliente: ${usuarioLogado.nome}\nEndereço: ${usuarioLogado.endereco}\n\n*ITENS:*\n`;
-            carrinho.forEach(i => msg += `- ${i.nome}: R$ ${i.preco.toFixed(2)}\n`);
-            msg += `\n*TOTAL: R$ ${document.getElementById('cart-total').innerText}*`;
+            let msg = `*NOVO PEDIDO - MEU TERÊ*\n\n`;
+            msg += `*Cliente:* ${usuarioLogado.nome}\n`;
+            msg += `*Endereço:* ${usuarioLogado.endereco}\n`;
+            msg += `----------------------------\n`;
+            carrinho.forEach(i => msg += `• ${i.nome}: R$ ${i.preco.toFixed(2)}\n`);
+            msg += `----------------------------\n`;
+            msg += `*TOTAL C/ ENTREGA: R$ ${document.getElementById('cart-total').innerText}*`;
             
-            window.open(`https://api.whatsapp.com/send?phone=5521977126638&text=${encodeURIComponent(msg)}`);
+            const fone = "5521977126638";
+            window.open(`https://api.whatsapp.com/send?phone=${fone}&text=${encodeURIComponent(msg)}`);
         }
     </script>
 </body>
