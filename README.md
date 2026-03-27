@@ -3,294 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEDELA SUPERMERCADO - CHECKOUT PRO</title>
+    <title>MEDELA SUPERMERCADO - FIX TELA BRANCA</title>
     <style>
         :root { --primary-green: #00a859; --orange-header: #f37021; --bg-gray: #f4f4f4; --text-dark: #333; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg-gray); margin: 0; color: var(--text-dark); }
-        
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg-gray); margin: 0; color: var(--text-dark); overflow-x: hidden; }
         .app-screen { display: none; min-height: 100vh; flex-direction: column; width: 100%; }
         .active { display: flex !important; }
         .container { padding: 20px; max-width: 450px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-        
-        .header-orange { background: var(--orange-header); padding: 15px 20px; color: white; border-radius: 0 0 20px 20px; position: sticky; top: 0; z-index: 100; text-align: center;}
+        .header-orange { background: var(--orange-header); padding: 15px 20px; color: white; border-radius: 0 0 20px 20px; text-align: center; position: sticky; top:0; z-index:100; }
         .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; left: 50%; transform: translateX(-50%); }
         .nav-item { font-size: 11px; color: #aaa; text-align: center; border: none; background: none; font-weight: bold; cursor: pointer; }
-        .nav-active { color: var(--primary-green); }
-
         .cat-container { display: flex; overflow-x: auto; padding: 10px; gap: 8px; background: white; white-space: nowrap; }
         .cat-pill { padding: 8px 16px; background: #f0f0f0; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; border: 1px solid #ddd; }
         .cat-pill.active-cat { background: var(--primary-green); color: white; border-color: var(--primary-green); }
-
         .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; padding-bottom: 150px; }
         .item-card { background: white; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        
-        .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 4px; }
+        .input-group { margin-bottom: 12px; text-align: left; }
         .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn-green { background: var(--primary-green); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
-        
-        /* Checkout Styles */
-        .payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .pay-btn { padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; font-size: 12px; font-weight: bold; }
-        .pay-btn.selected { border-color: var(--primary-green); background: #e8f5e9; color: var(--primary-green); }
-        
-        .info-box { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-top: 15px; display: none; }
-        .list-item { background: white; padding: 12px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--orange-header); }
+        .btn-green { background: var(--primary-green); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+        .pay-btn { padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; font-size: 12px; }
+        .pay-btn.selected { background: #e8f5e9; border-color: var(--primary-green); color: var(--primary-green); font-weight: bold; }
+        .info-box { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
-<section id="screen-login" class="app-screen">
+<section id="screen-login" class="app-screen active">
     <div class="container">
         <div style="text-align: center; margin: 40px 0;">
             <h1 style="color: var(--primary-green); margin:0; font-size: 40px;">MEDELA</h1>
             <p style="color:var(--orange-header); font-weight:bold;">SUPERMERCADO</p>
         </div>
-        <div class="input-group"><label>CPF</label><input type="text" id="login-cpf" placeholder="000.000.000-00" oninput="mascaraCPF(this)" maxlength="14"></div>
+        <div class="input-group">
+            <input type="text" id="login-cpf" placeholder="Seu CPF (000.000.000-00)" oninput="mascaraCPF(this)" maxlength="14">
+        </div>
         <button class="btn-green" onclick="fazerLogin()">ENTRAR</button>
-        <p style="text-align:center; margin-top:20px;">Novo por aqui? <b style="color:var(--orange-header); cursor:pointer" onclick="irPara('screen-register')">Cadastre-se</b></p>
-        <p style="text-align:center; margin-top:50px; font-size:11px; color:#ccc; cursor:pointer;" onclick="acessoAdmin()">⚙️ ADMINISTRAÇÃO</p>
+        <p style="text-align:center; margin-top:20px;">Novo? <b style="color:var(--orange-header); cursor:pointer" onclick="irPara('screen-register')">Cadastre-se</b></p>
+        <p style="text-align:center; margin-top:40px; font-size:11px; color:#ccc; cursor:pointer;" onclick="acessoAdmin()">⚙️ ADMINISTRAÇÃO</p>
     </div>
 </section>
 
 <section id="screen-register" class="app-screen">
-    <div class="header-orange"><h2>Criar Conta</h2></div>
+    <div class="header-orange"><h2>Cadastro</h2></div>
     <div class="container">
-        <div class="input-group"><label>Nome</label><input type="text" id="reg-nome"></div>
-        <div class="input-group"><label>CPF</label><input type="text" id="reg-cpf" oninput="mascaraCPF(this)" maxlength="14"></div>
-        <div class="input-group"><label>Endereço</label><input type="text" id="reg-end"></div>
-        <button class="btn-green" onclick="salvarCadastro()">CADASTRAR</button>
+        <div class="input-group"><input type="text" id="reg-nome" placeholder="Nome Completo"></div>
+        <div class="input-group"><input type="text" id="reg-cpf" placeholder="CPF" oninput="mascaraCPF(this)" maxlength="14"></div>
+        <div class="input-group"><input type="text" id="reg-end" placeholder="Endereço de Entrega"></div>
+        <button class="btn-green" onclick="salvarCadastro()">CADASTRAR E ENTRAR</button>
         <button class="btn-green" style="background:#888; margin-top:10px;" onclick="irPara('screen-login')">VOLTAR</button>
     </div>
 </section>
 
 <section id="screen-home" class="app-screen">
-    <div class="header-orange"><h3 id="user-display" style="margin:0">Olá!</h3><input type="text" placeholder="Pesquisar..." style="width:100%; margin-top:10px; padding:10px; border-radius:8px; border:none;" oninput="renderHome(this.value)"></div>
+    <div class="header-orange">
+        <h3 id="user-display" style="margin:0">Olá!</h3>
+        <input type="text" placeholder="Buscar produto..." style="width:100%; margin-top:10px; padding:10px; border-radius:8px; border:none;" oninput="renderHome(this.value)">
+    </div>
     <div class="cat-container" id="cat-list"></div>
     <div class="market-grid" id="product-grid"></div>
 </section>
 
 <section id="screen-cart" class="app-screen">
-    <div class="header-orange"><h2>Carrinho</h2></div>
-    <div class="container" style="padding-bottom: 250px;" id="cart-items-list"></div>
+    <div class="header-orange"><h2>Meu Carrinho</h2></div>
+    <div class="container" id="cart-items-list" style="padding-bottom: 300px;"></div>
     
-    <div id="cart-footer" class="container" style="position:fixed; bottom:60px; background:white; width:100%; border-top:2px solid #eee; display:none; left:50%; transform:translateX(-50%); max-height: 80vh; overflow-y: auto;">
-        <h3 style="color:var(--primary-green)">TOTAL: <span id="total-val">0,00</span></h3>
-        
-        <label style="font-size:12px; font-weight:bold;">Selecione o Pagamento:</label>
+    <div id="cart-footer" class="container" style="position:fixed; bottom:60px; background:white; width:100%; border-top:2px solid #eee; display:none; left:50%; transform:translateX(-50%); z-index: 500;">
+        <h3 style="color:var(--primary-green); margin:10px 0;">Total: R$ <span id="total-val">0,00</span></h3>
         <div class="payment-methods">
             <button class="pay-btn" id="btn-pix" onclick="setMetodo('pix')">PIX</button>
-            <button class="pay-btn" id="btn-debito" onclick="setMetodo('debito')">DÉBITO</button>
             <button class="pay-btn" id="btn-credito" onclick="setMetodo('credito')">CRÉDITO</button>
+            <button class="pay-btn" id="btn-debito" onclick="setMetodo('debito')">DÉBITO</button>
             <button class="pay-btn" id="btn-dinheiro" onclick="setMetodo('dinheiro')">DINHEIRO</button>
         </div>
-
-        <div id="info-pix" class="info-box">
-            <p style="font-size:12px;">Chave PIX: <b id="chave-display"></b></p>
-            <button onclick="copiarPix()" style="font-size:11px;">Copiar Chave</button>
-        </div>
-
-        <div id="info-credito" class="info-box">
-            <label style="font-size:11px;">Parcelamento (3,98% juros p/ mês):</label>
-            <select id="select-parcelas" onchange="atualizarJuros()"></select>
-        </div>
-
-        <div id="info-dinheiro" class="info-box">
-            <label style="font-size:11px;">Precisa de troco para quanto?</label>
-            <input type="number" id="troco-para" placeholder="Ex: 100">
-        </div>
-
-        <button class="btn-green" style="margin-top:15px; background:#25d366;" onclick="enviarWhatsApp()">FINALIZAR PEDIDO</button>
+        <div id="info-pix" class="info-box">Chave: <b id="chave-pix-txt"></b></div>
+        <div id="info-credito" class="info-box">Parcelas: <select id="select-parcelas" style="width:100%"></select></div>
+        <div id="info-dinheiro" class="info-box"><input type="number" id="troco-input" placeholder="Troco para quanto?"></div>
+        <button class="btn-green" style="margin-top:10px; background:#25d366" onclick="enviarWhatsApp()">FINALIZAR WHATSAPP</button>
     </div>
 </section>
 
 <section id="screen-admin" class="app-screen">
     <div class="header-orange"><h2>Painel Admin</h2></div>
-    <div class="container">
-        <div class="input-group"><label>Chave PIX:</label><input type="text" id="adm-chave-pix"></div>
-        <button class="btn-green" style="padding:10px; margin-bottom:20px" onclick="salvarChave()">SALVAR CHAVE</button>
-        <div style="background:white; padding:15px; border-radius:10px; border:1px solid #ddd; margin-bottom:20px;">
-            <div class="input-group"><input type="text" id="adm-nome" placeholder="Produto"></div>
-            <div class="input-group"><select id="adm-cat-select"></select></div>
-            <div class="input-group"><select id="adm-tipo"><option value="un">UN</option><option value="kg">KG</option></select></div>
-            <div class="input-group"><input type="number" id="adm-preco" placeholder="Preço"></div>
-            <button class="btn-green" onclick="admAdicionar()">SALVAR PRODUTO</button>
-        </div>
-        <div id="adm-lista-geral"></div>
-        <button class="btn-green" style="background:#333; margin-top:20px" onclick="sairAdmin()">SAIR</button>
+    <div class="container" style="padding-bottom: 50px;">
+        <input type="text" id="adm-chave-pix" placeholder="Chave Pix da Loja" style="width:100%; padding:10px; margin-bottom:10px;">
+        <button class="btn-green" style="padding:10px; margin-bottom:20px" onclick="salvarConfig()">SALVAR CONFIGURAÇÕES</button>
+        <hr>
+        <div class="input-group"><input type="text" id="adm-nome" placeholder="Nome do Produto"></div>
+        <div class="input-group"><select id="adm-cat-select"></select></div>
+        <div class="input-group"><select id="adm-tipo"><option value="un">Unidade (UN)</option><option value="kg">Quilo (KG)</option></select></div>
+        <div class="input-group"><input type="number" id="adm-preco" placeholder="Preço (Ex: 10.50)"></div>
+        <button class="btn-green" onclick="admAdicionar()">ADICIONAR PRODUTO</button>
+        <div id="adm-lista-geral" style="margin-top:20px"></div>
+        <button class="btn-green" style="background:#333; margin-top:20px" onclick="sairAdmin()">SAIR DO PAINEL</button>
     </div>
 </section>
 
 <nav class="bottom-nav" id="main-nav" style="display:none;">
-    <button class="nav-item" onclick="irPara('screen-home')">LOJA</button>
-    <button class="nav-item" onclick="irPara('screen-cart')">CARRINHO (<span id="count">0</span>)</button>
-    <button class="nav-item" onclick="logout()">SAIR</button>
+    <button class="nav-item" onclick="irPara('screen-home')">🛒 LOJA</button>
+    <button class="nav-item" onclick="irPara('screen-cart')">🛍️ CESTA (<span id="count">0</span>)</button>
+    <button class="nav-item" onclick="logout()">🚪 SAIR</button>
 </nav>
 
 <script>
     const SENHA_MESTRA = "123";
     const CATEGORIAS = ["Mercearia", "Açougue", "Hortifrúti", "Bebidas", "Limpeza", "Padaria", "Fiambreria"];
-    const JUROS_MES = 0.0398; // 3.98%
-
-    let estoque = JSON.parse(localStorage.getItem('medela_estoque_v3')) || [];
+    
+    let estoque = JSON.parse(localStorage.getItem('medela_estoque')) || [];
     let carrinho = [];
-    let userAtivo = JSON.parse(localStorage.getItem('medela_user_logado'));
+    let userAtivo = JSON.parse(localStorage.getItem('medela_user'));
     let isAdmin = localStorage.getItem('admin_session') === 'true';
-    let chavePix = localStorage.getItem('medela_chave_pix') || "Defina no Admin";
-    let categoriaSelecionada = CATEGORIAS[0];
-    let metodoPagamento = "";
-    let subtotalGeral = 0;
+    let chavePix = localStorage.getItem('medela_pix') || "Não definida";
+    let catAtual = CATEGORIAS[0];
+    let metodoAtivo = "";
 
+    // INICIALIZAÇÃO - CORREÇÃO DE TELA BRANCA
     window.onload = () => {
-        popularCategorias();
-        if (isAdmin) irPara('screen-admin');
-        else if (userAtivo) { logarInterface(); irPara('screen-home'); }
-        else irPara('screen-login');
-    };
-
-    function popularCategorias() {
         document.getElementById('adm-cat-select').innerHTML = CATEGORIAS.map(c => `<option value="${c}">${c}</option>`).join('');
         document.getElementById('adm-chave-pix').value = chavePix;
-    }
+        
+        if (isAdmin) {
+            irPara('screen-admin');
+        } else if (userAtivo && userAtivo.cpf) {
+            logarInterface();
+            irPara('screen-home');
+        } else {
+            irPara('screen-login');
+        }
+    };
 
     function irPara(id) {
         document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+        const target = document.getElementById(id);
+        if(target) target.classList.add('active');
+        
         document.getElementById('main-nav').style.display = (id === 'screen-home' || id === 'screen-cart') ? 'flex' : 'none';
-        if(id === 'screen-home') { renderHome(); }
+        
+        if(id === 'screen-home') renderHome();
         if(id === 'screen-cart') renderCart();
         if(id === 'screen-admin') renderAdmin();
+        window.scrollTo(0,0);
     }
 
-    // --- LOGICA DE PAGAMENTO ---
-    function setMetodo(m) {
-        metodoPagamento = m;
-        document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('selected'));
-        document.getElementById(`btn-${m}`).classList.add('selected');
-        
-        document.querySelectorAll('.info-box').forEach(box => box.style.display = 'none');
-        
-        if(m === 'pix') {
-            document.getElementById('info-pix').style.display = 'block';
-            document.getElementById('chave-display').innerText = chavePix;
-        } else if (m === 'credito') {
-            document.getElementById('info-credito').style.display = 'block';
-            gerarParcelas();
-        } else if (m === 'dinheiro') {
-            document.getElementById('info-dinheiro').style.display = 'block';
-        }
+    // --- FUNÇÕES DE USUÁRIO ---
+    function fazerLogin() {
+        const cpf = document.getElementById('login-cpf').value;
+        const dados = localStorage.getItem(`c_${cpf}`);
+        if(dados) {
+            userAtivo = JSON.parse(dados);
+            localStorage.setItem('medela_user', JSON.stringify(userAtivo));
+            logarInterface();
+            irPara('screen-home');
+        } else { alert("CPF não cadastrado!"); }
     }
 
-    function gerarParcelas() {
-        const select = document.getElementById('select-parcelas');
-        select.innerHTML = "";
-        for(let i=1; i<=12; i++) {
-            // Cálculo: Total * (1 + (Juros * meses))
-            let totalComJuros = subtotalGeral * (1 + (JUROS_MES * (i-1)));
-            if(i === 1) totalComJuros = subtotalGeral; // 1x sem juros (ou conforme sua regra)
-            
-            let valorParcela = totalComJuros / i;
-            let opt = document.createElement('option');
-            opt.value = i;
-            opt.text = `${i}x de R$ ${valorParcela.toFixed(2)} (Total: R$ ${totalComJuros.toFixed(2)})`;
-            select.appendChild(opt);
-        }
+    function salvarCadastro() {
+        const n = document.getElementById('reg-nome').value;
+        const c = document.getElementById('reg-cpf').value;
+        const e = document.getElementById('reg-end').value;
+        if(!n || c.length < 14) return alert("Preencha tudo!");
+        userAtivo = {nome: n, cpf: c, end: e};
+        localStorage.setItem(`c_${c}`, JSON.stringify(userAtivo));
+        localStorage.setItem('medela_user', JSON.stringify(userAtivo));
+        logarInterface();
+        irPara('screen-home');
     }
 
-    function salvarChave() {
-        chavePix = document.getElementById('adm-chave-pix').value;
-        localStorage.setItem('medela_chave_pix', chavePix);
-        alert("Chave salva!");
+    function logarInterface() { 
+        if(userAtivo) document.getElementById('user-display').innerText = `Olá, ${userAtivo.nome.split(' ')[0]}!`;
     }
 
-    function copiarPix() { navigator.clipboard.writeText(chavePix); alert("Copiado!"); }
-
-    // --- LOJA / CARRINHO ---
+    // --- LOJA ---
     function renderHome(busca = "") {
-        document.getElementById('cat-list').innerHTML = CATEGORIAS.map(c => `<div class="cat-pill ${categoriaSelecionada===c?'active-cat':''}" onclick="setCat('${c}')">${c}</div>`).join('');
+        const containerCat = document.getElementById('cat-list');
+        containerCat.innerHTML = CATEGORIAS.map(c => `<div class="cat-pill ${catAtual===c?'active-cat':''}" onclick="setCat('${c}')">${c}</div>`).join('');
+        
         const grid = document.getElementById('product-grid');
-        grid.innerHTML = estoque.filter(p => p.cat === categoriaSelecionada && p.n.toLowerCase().includes(busca.toLowerCase())).map(p => `
+        const lista = estoque.filter(p => p.cat === catAtual && p.n.toLowerCase().includes(busca.toLowerCase()));
+        
+        grid.innerHTML = lista.map(p => `
             <div class="item-card">
-                <b>${p.n}</b><br><span style="color:var(--primary-green)">R$ ${p.p.toFixed(2)}</span>
-                <div style="margin:8px 0"><input type="number" id="qty-${p.id}" value="1" step="${p.tipo==='kg'?'0.1':'1'}" style="width:50px"> ${p.tipo}</div>
-                <button onclick="addCart(${p.id})" style="background:var(--orange-header); color:white; border:none; padding:8px; border-radius:5px; width:100%">ADD</button>
+                <b style="font-size:13px">${p.n}</b><br>
+                <span style="color:var(--primary-green); font-weight:bold">R$ ${p.p.toFixed(2)}</span>
+                <div style="margin:5px 0"><input type="number" id="q-${p.id}" value="1" style="width:40px"> <small>${p.tipo}</small></div>
+                <button onclick="addCart(${p.id})" style="background:var(--orange-header); color:white; border:none; padding:5px; border-radius:5px; width:100%; cursor:pointer">ADICIONAR</button>
             </div>
         `).join('');
     }
 
-    function setCat(c) { categoriaSelecionada = c; renderHome(); }
+    function setCat(c) { catAtual = c; renderHome(); }
 
     function addCart(id) {
         const p = estoque.find(x => x.id === id);
-        const q = parseFloat(document.getElementById(`qty-${id}`).value);
+        const q = parseFloat(document.getElementById(`q-${id}`).value);
         carrinho.push({...p, qtd: q, sub: p.p * q});
         document.getElementById('count').innerText = carrinho.length;
         alert("Adicionado!");
     }
 
+    // --- CARRINHO E PAGAMENTO ---
     function renderCart() {
         const container = document.getElementById('cart-items-list');
         if(carrinho.length === 0) {
-            container.innerHTML = "<center style='margin-top:50px'>Vazio</center>";
+            container.innerHTML = "<p style='text-align:center; margin-top:50px'>Carrinho vazio.</p>";
             document.getElementById('cart-footer').style.display = "none";
             return;
         }
-        subtotalGeral = carrinho.reduce((acc, it) => acc + it.sub, 0) + 7; // +7 taxa entrega
-        container.innerHTML = carrinho.map((it, i) => `<div class="list-item"><div><b>${it.n}</b><br>${it.qtd}${it.tipo}</div><div>R$ ${it.sub.toFixed(2)} <span onclick="remCart(${i})" style="color:red">X</span></div></div>`).join('');
-        document.getElementById('total-val').innerText = subtotalGeral.toFixed(2);
+        let total = carrinho.reduce((acc, i) => acc + i.sub, 0) + 7; // Taxa de entrega fixa
+        container.innerHTML = carrinho.map((it, idx) => `
+            <div style="background:white; padding:10px; margin-bottom:5px; border-radius:8px; display:flex; justify-content:space-between">
+                <span>${it.n} (${it.qtd}${it.tipo})</span>
+                <b>R$ ${it.sub.toFixed(2)} <span onclick="remCart(${idx})" style="color:red; margin-left:10px">X</span></b>
+            </div>
+        `).join('');
+        document.getElementById('total-val').innerText = total.toFixed(2);
         document.getElementById('cart-footer').style.display = "block";
-        metodoPagamento = ""; // Reseta ao abrir
+    }
+
+    function setMetodo(m) {
+        metodoAtivo = m;
+        document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('selected'));
+        document.getElementById(`btn-${m}`).classList.add('selected');
+        document.querySelectorAll('.info-box').forEach(i => i.style.display = 'none');
+        
+        if(m === 'pix') {
+            document.getElementById('info-pix').style.display = 'block';
+            document.getElementById('chave-pix-txt').innerText = chavePix;
+        } else if(m === 'credito') {
+            document.getElementById('info-credito').style.display = 'block';
+            const sel = document.getElementById('select-parcelas');
+            const total = parseFloat(document.getElementById('total-val').innerText);
+            sel.innerHTML = "";
+            for(let i=1; i<=12; i++) {
+                let juros = i === 1 ? 1 : (1 + (0.0398 * (i-1)));
+                let valorFinal = total * juros;
+                sel.innerHTML += `<option value="${i}">${i}x de R$ ${(valorFinal/i).toFixed(2)} (Total R$ ${valorFinal.toFixed(2)})</option>`;
+            }
+        } else if(m === 'dinheiro') {
+            document.getElementById('info-dinheiro').style.display = 'block';
+        }
     }
 
     function remCart(i) { carrinho.splice(i,1); renderCart(); document.getElementById('count').innerText = carrinho.length; }
 
     function enviarWhatsApp() {
-        if(!metodoPagamento) return alert("Escolha o pagamento!");
+        if(!metodoAtivo) return alert("Escolha o pagamento!");
+        let totalFinal = document.getElementById('total-val').innerText;
+        let detPag = `Metodo: ${metodoAtivo.toUpperCase()}`;
         
-        let resumoPagamento = `Pagamento: ${metodoPagamento.toUpperCase()}`;
-        let totalFinal = subtotalGeral;
-
-        if(metodoPagamento === 'credito') {
-            const parcelas = document.getElementById('select-parcelas').value;
-            const textoParcela = document.getElementById('select-parcelas').options[document.getElementById('select-parcelas').selectedIndex].text;
-            resumoPagamento = `Pagamento: CRÉDITO (${textoParcela})`;
-        } else if(metodoPagamento === 'dinheiro') {
-            const troco = document.getElementById('troco-para').value;
-            resumoPagamento += troco ? ` (Troco para R$ ${troco})` : ` (Sem troco)`;
-        }
+        if(metodoAtivo === 'credito') detPag += ` - ${document.getElementById('select-parcelas').value}x no Cartão`;
+        if(metodoAtivo === 'dinheiro') detPag += ` - Troco para R$ ${document.getElementById('troco-input').value}`;
 
         let msg = `*PEDIDO - MEDELA*\nCliente: ${userAtivo.nome}\nEndereço: ${userAtivo.end}\n\n`;
         carrinho.forEach(i => msg += `- ${i.n} (${i.qtd}${i.tipo}): R$ ${i.sub.toFixed(2)}\n`);
-        msg += `\n*Taxa Entrega: R$ 7,00*`;
-        msg += `\n*TOTAL: R$ ${totalFinal.toFixed(2)}*`;
-        msg += `\n\n*${resumoPagamento}*`;
-        
+        msg += `\n*TOTAL COM TAXA: R$ ${totalFinal}*\n*${detPag}*`;
         window.open(`https://api.whatsapp.com/send?phone=5521977126638&text=${encodeURIComponent(msg)}`);
     }
 
-    // --- ADMIN / AUX ---
-    function acessoAdmin() { if(prompt("Senha:") === SENHA_MESTRA) { localStorage.setItem('admin_session','true'); isAdmin=true; irPara('screen-admin'); } }
-    function sairAdmin() { localStorage.removeItem('admin_session'); location.reload(); }
-    function logout() { localStorage.removeItem('medela_user_logado'); location.reload(); }
-    function mascaraCPF(i) { i.value = i.value.replace(/\D/g, "").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2"); }
-    function fazerLogin() { 
-        const c = document.getElementById('login-cpf').value;
-        const d = localStorage.getItem(`cliente_${c}`);
-        if(d) { userAtivo=JSON.parse(d); localStorage.setItem('medela_user_logado', JSON.stringify(userAtivo)); irPara('screen-home'); } else alert("Cadastre-se!");
+    // --- ADMIN ---
+    function acessoAdmin() {
+        if(prompt("Senha:") === SENHA_MESTRA) {
+            localStorage.setItem('admin_session', 'true');
+            isAdmin = true;
+            irPara('screen-admin');
+        } else alert("Senha incorreta");
     }
-    function salvarCadastro() {
-        const n=document.getElementById('reg-nome').value, c=document.getElementById('reg-cpf').value, e=document.getElementById('reg-end').value;
-        localStorage.setItem(`cliente_${c}`, JSON.stringify({nome:n, cpf:c, end:e})); irPara('screen-login');
-    }
-    function renderAdmin(busca="") {
-        document.getElementById('adm-lista-geral').innerHTML = estoque.filter(p=>p.n.toLowerCase().includes(busca.toLowerCase())).map(p=>`<div class="list-item"><span>${p.n}</span><button onclick="admRemover(${p.id})">X</button></div>`).join('');
-    }
-    function admAdicionar() {
-        const n=document.getElementById('adm-nome').value, c=document.getElementById('adm-cat-select').value, t=document.getElementById('adm-tipo').value, p=parseFloat(document.getElementById('adm-preco').value);
-        estoque.push({id:Date.now(), n, cat:c, tipo:t, p}); localStorage.setItem('medela_estoque_v3', JSON.stringify(estoque)); renderAdmin();
-    }
-    function admRemover(id) { estoque=estoque.filter(p=>p.id!==id); localStorage.setItem('medela_estoque_v3', JSON.stringify(estoque)); renderAdmin(); }
 
+    function sairAdmin() {
+        localStorage.removeItem('admin_session');
+        isAdmin = false;
+        location.reload();
+    }
+
+    function salvarConfig() {
+        chavePix = document.getElementById('adm-chave-pix').value;
+        localStorage.setItem('medela_pix', chavePix);
+        alert("Configuração Salva!");
+    }
+
+    function admAdicionar() {
+        const n = document.getElementById('adm-nome').value;
+        const c = document.getElementById('adm-cat-select').value;
+        const t = document.getElementById('adm-tipo').value;
+        const p = parseFloat(document.getElementById('adm-preco').value);
+        if(!n || !p) return alert("Preencha tudo");
+        estoque.push({id: Date.now(), n, cat: c, tipo: t, p});
+        localStorage.setItem('medela_estoque', JSON.stringify(estoque));
+        renderAdmin();
+    }
+
+    function renderAdmin() {
+        const lista = document.getElementById('adm-lista-geral');
+        lista.innerHTML = estoque.map(p => `
+            <div style="background:#fff; padding:10px; margin-bottom:5px; border-radius:5px; display:flex; justify-content:space-between">
+                <span>${p.n} (${p.cat})</span>
+                <button onclick="admRemover(${p.id})" style="background:red; color:white; border:none; border-radius:4px">X</button>
+            </div>
+        `).join('');
+    }
+
+    function admRemover(id) {
+        estoque = estoque.filter(p => p.id !== id);
+        localStorage.setItem('medela_estoque', JSON.stringify(estoque));
+        renderAdmin();
+    }
+
+    // --- UTIL ---
+    function mascaraCPF(i) {
+        let v = i.value.replace(/\D/g, "").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        i.value = v;
+    }
+    function logout() { localStorage.removeItem('medela_user'); location.reload(); }
 </script>
 </body>
 </html>
