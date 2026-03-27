@@ -1,9 +1,9 @@
-MEDELA SUPERMERCADO
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEDELA SUPERMERCADO - PRO V3</title>
+    <title>MEDELA SUPERMERCADO - PIX V4</title>
     <style>
         :root { --primary-green: #00a859; --orange-header: #f37021; --bg-gray: #f4f4f4; --text-dark: #333; }
         body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg-gray); margin: 0; color: var(--text-dark); }
@@ -29,6 +29,7 @@ MEDELA SUPERMERCADO
         .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         .btn-green { background: var(--primary-green); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
         
+        .pix-box { background: #e8f5e9; padding: 15px; border-radius: 10px; border: 2px dashed var(--primary-green); margin: 15px 0; display: none; text-align: center; }
         .list-item { background: white; padding: 12px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--orange-header); }
     </style>
 </head>
@@ -73,20 +74,34 @@ MEDELA SUPERMERCADO
 <section id="screen-cart" class="app-screen">
     <div class="header-orange"><h2>Carrinho</h2></div>
     <div class="container" style="padding-bottom: 200px;" id="cart-items-list"></div>
+    
     <div id="cart-footer" class="container" style="position:fixed; bottom:60px; background:white; width:100%; border-top:2px solid #eee; display:none; left:50%; transform:translateX(-50%);">
         <h3 style="color:var(--primary-green)">TOTAL: <span id="total-val" style="float:right">0,00</span></h3>
-        <button class="btn-green" onclick="enviarWhatsApp()">FINALIZAR NO WHATSAPP</button>
+        
+        <div id="pix-area" class="pix-box">
+            <p style="margin:0; font-size:12px; font-weight:bold;">Pague via PIX para finalizar:</p>
+            <p id="chave-pix-display" style="color:var(--primary-green); font-weight:bold; font-size:16px; margin:5px 0;"></p>
+            <button onclick="copiarPix()" style="font-size:11px; padding:5px; cursor:pointer;">Copiar Chave</button>
+            <p style="font-size:10px; color:red; margin-top:5px;">*Após pagar, envie o comprovante no WhatsApp*</p>
+        </div>
+
+        <button id="btn-finalizar-pedido" class="btn-green" onclick="mostrarPix()">PAGAR E FINALIZAR</button>
+        <button id="btn-whats" class="btn-green" style="background:#25d366; display:none;" onclick="enviarWhatsApp()">ENVIAR COMPROVANTE (WHATSAPP)</button>
     </div>
 </section>
 
 <section id="screen-admin" class="app-screen">
     <div class="header-orange"><h2>Painel Admin</h2></div>
     <div class="container" style="padding-bottom: 50px;">
+        <div style="background:#fff; padding:15px; border-radius:10px; border:1px solid var(--primary-green); margin-bottom:15px;">
+            <label style="font-weight:bold; font-size:12px;">Chave PIX da Loja:</label>
+            <input type="text" id="adm-chave-pix" placeholder="CPF, Celular ou Email">
+            <button class="btn-green" style="padding:8px; margin-top:5px; font-size:12px;" onclick="salvarChavePix()">SALVAR CHAVE PIX</button>
+        </div>
+
         <div style="background:white; padding:15px; border-radius:10px; border:1px solid #ddd; margin-bottom:20px;">
             <div class="input-group"><input type="text" id="adm-nome" placeholder="Nome do Produto"></div>
-            <div class="input-group">
-                <select id="adm-cat-select"></select>
-            </div>
+            <div class="input-group"><select id="adm-cat-select"></select></div>
             <div class="input-group">
                 <select id="adm-tipo">
                     <option value="un">Unidade (UN)</option>
@@ -96,7 +111,6 @@ MEDELA SUPERMERCADO
             <div class="input-group"><input type="number" id="adm-preco" placeholder="Preço (Ex: 5.99)"></div>
             <button class="btn-green" onclick="admAdicionar()">SALVAR PRODUTO</button>
         </div>
-        <input type="text" placeholder="🔍 Buscar para excluir..." oninput="renderAdmin(this.value)" style="width:100%; padding:12px; margin-bottom:15px; border-radius:8px; border:1px solid var(--orange-header);">
         <div id="adm-lista-geral"></div>
         <button class="btn-green" style="background:#333; margin-top:20px" onclick="sairAdmin()">SAIR E VOLTAR AO LOGIN</button>
     </div>
@@ -109,68 +123,58 @@ MEDELA SUPERMERCADO
 </nav>
 
 <script>
-    const SENHA_MESTRA = "Medela7690";
-    const CATEGORIAS = ["Mercearia", "Açougue", "Hortifrúti", "Bebida s", "Limpeza", "Padaria", "Fiambreria"];
+    const SENHA_MESTRA = "123";
+    const CATEGORIAS = ["Mercearia", "Açougue", "Hortifrúti", "Bebidas", "Limpeza", "Padaria", "Fiambreria"];
     
     let estoque = JSON.parse(localStorage.getItem('medela_estoque_v3')) || [];
     let carrinho = [];
     let userAtivo = JSON.parse(localStorage.getItem('medela_user_logado'));
-    let isAdmin = localStorage.getItem('admin_session') === 'true'; // Verifica se o ADM está logado
+    let isAdmin = localStorage.getItem('admin_session') === 'true';
+    let chavePix = localStorage.getItem('medela_chave_pix') || "Defina a chave no ADM";
     let categoriaSelecionada = CATEGORIAS[0];
 
     window.onload = () => {
         popularSelectCategorias();
-        // Lógica de Redirecionamento ao atualizar
-        if (isAdmin) {
-            irPara('screen-admin');
-        } else if (userAtivo) {
-            logarInterface();
-            irPara('screen-home');
-        } else {
-            irPara('screen-login');
-        }
+        if (isAdmin) irPara('screen-admin');
+        else if (userAtivo) { logarInterface(); irPara('screen-home'); }
+        else irPara('screen-login');
     };
 
     function popularSelectCategorias() {
         const sel = document.getElementById('adm-cat-select');
         sel.innerHTML = CATEGORIAS.map(c => `<option value="${c}">${c}</option>`).join('');
+        document.getElementById('adm-chave-pix').value = chavePix;
     }
 
     function irPara(id) {
         document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.getElementById('main-nav').style.display = (id === 'screen-home' || id === 'screen-cart') ? 'flex' : 'none';
-        
         if(id === 'screen-home') { renderCategorias(); renderHome(); }
         if(id === 'screen-cart') renderCart();
         if(id === 'screen-admin') renderAdmin();
     }
 
-    // --- CADASTRO / LOGIN ---
-    function salvarCadastro() {
-        const n = document.getElementById('reg-nome').value;
-        const c = document.getElementById('reg-cpf').value;
-        const e = document.getElementById('reg-end').value;
-        if(!n || c.length < 14) return alert("Dados incompletos!");
-        localStorage.setItem(`cliente_${c}`, JSON.stringify({nome: n, cpf: c, end: e}));
-        alert("Cadastrado! Faça o login.");
-        irPara('screen-login');
+    // --- PIX FUNCTIONS ---
+    function salvarChavePix() {
+        chavePix = document.getElementById('adm-chave-pix').value;
+        localStorage.setItem('medela_chave_pix', chavePix);
+        alert("Chave Pix Atualizada!");
     }
 
-    function fazerLogin() {
-        const c = document.getElementById('login-cpf').value;
-        const dados = localStorage.getItem(`cliente_${c}`);
-        if(dados) {
-            userAtivo = JSON.parse(dados);
-            localStorage.setItem('medela_user_logado', JSON.stringify(userAtivo));
-            logarInterface();
-            irPara('screen-home');
-        } else { alert("CPF não encontrado!"); }
+    function mostrarPix() {
+        document.getElementById('pix-area').style.display = "block";
+        document.getElementById('chave-pix-display').innerText = chavePix;
+        document.getElementById('btn-finalizar-pedido').style.display = "none";
+        document.getElementById('btn-whats').style.display = "block";
     }
 
-    function logarInterface() { document.getElementById('user-display').innerText = `Olá, ${userAtivo.nome.split(' ')[0]}`; }
+    function copiarPix() {
+        navigator.clipboard.writeText(chavePix);
+        alert("Chave Copiada!");
+    }
 
-    // --- LOJA ---
+    // --- LOJA / CARRINHO ---
     function renderCategorias() {
         const container = document.getElementById('cat-list');
         container.innerHTML = CATEGORIAS.map(c => `
@@ -178,19 +182,11 @@ MEDELA SUPERMERCADO
         `).join('');
     }
 
-    function setCat(c) {
-        categoriaSelecionada = c;
-        renderCategorias();
-        renderHome();
-    }
+    function setCat(c) { categoriaSelecionada = c; renderCategorias(); renderHome(); }
 
     function renderHome(busca = "") {
         const grid = document.getElementById('product-grid');
-        const filtrados = estoque.filter(p => 
-            p.cat === categoriaSelecionada && 
-            p.n.toLowerCase().includes(busca.toLowerCase())
-        );
-
+        const filtrados = estoque.filter(p => p.cat === categoriaSelecionada && p.n.toLowerCase().includes(busca.toLowerCase()));
         grid.innerHTML = filtrados.map(p => `
             <div class="item-card">
                 <b style="font-size:14px; display:block; height:35px">${p.n}</b>
@@ -215,6 +211,10 @@ MEDELA SUPERMERCADO
 
     function renderCart() {
         const container = document.getElementById('cart-items-list');
+        document.getElementById('pix-area').style.display = "none";
+        document.getElementById('btn-finalizar-pedido').style.display = "block";
+        document.getElementById('btn-whats').style.display = "none";
+
         if(carrinho.length === 0) {
             container.innerHTML = "<center style='margin-top:50px'>Carrinho vazio</center>";
             document.getElementById('cart-footer').style.display = "none";
@@ -240,26 +240,35 @@ MEDELA SUPERMERCADO
         renderCart();
     }
 
-    // --- ADMIN (CORRIGIDO) ---
+    // --- ADMIN / LOGIN / UTIL ---
     function acessoAdmin() {
-        if(prompt("Senha:") === SENHA_MESTRA) {
-            localStorage.setItem('admin_session', 'true'); // Cria a sessão
-            isAdmin = true;
-            irPara('screen-admin');
-        }
+        if(prompt("Senha:") === SENHA_MESTRA) { localStorage.setItem('admin_session', 'true'); isAdmin = true; irPara('screen-admin'); }
         else alert("Senha incorreta");
     }
 
-    function sairAdmin() {
-        localStorage.removeItem('admin_session'); // Deleta a sessão
-        isAdmin = false;
-        location.reload(); // Recarrega para voltar ao login limpo
+    function sairAdmin() { localStorage.removeItem('admin_session'); isAdmin = false; location.reload(); }
+
+    function fazerLogin() {
+        const c = document.getElementById('login-cpf').value;
+        const dados = localStorage.getItem(`cliente_${c}`);
+        if(dados) { userAtivo = JSON.parse(dados); localStorage.setItem('medela_user_logado', JSON.stringify(userAtivo)); logarInterface(); irPara('screen-home'); }
+        else alert("CPF não encontrado!");
     }
+
+    function salvarCadastro() {
+        const n = document.getElementById('reg-nome').value;
+        const c = document.getElementById('reg-cpf').value;
+        const e = document.getElementById('reg-end').value;
+        if(!n || c.length < 14) return alert("Dados incompletos!");
+        localStorage.setItem(`cliente_${c}`, JSON.stringify({nome: n, cpf: c, end: e}));
+        alert("Cadastrado!"); irPara('screen-login');
+    }
+
+    function logarInterface() { document.getElementById('user-display').innerText = `Olá, ${userAtivo.nome.split(' ')[0]}`; }
 
     function renderAdmin(busca = "") {
         const lista = document.getElementById('adm-lista-geral');
-        const filtrados = estoque.filter(p => p.n.toLowerCase().includes(busca.toLowerCase()));
-        lista.innerHTML = filtrados.map(p => `
+        lista.innerHTML = estoque.filter(p => p.n.toLowerCase().includes(busca.toLowerCase())).map(p => `
             <div class="list-item">
                 <span><b>${p.n}</b> (${p.cat})<br>R$ ${p.p.toFixed(2)} / ${p.tipo}</span>
                 <button onclick="admRemover(${p.id})" style="background:red; color:white; border:none; padding:8px; border-radius:5px">EXCLUIR</button>
@@ -268,40 +277,27 @@ MEDELA SUPERMERCADO
     }
 
     function admAdicionar() {
-        const n = document.getElementById('adm-nome').value;
-        const c = document.getElementById('adm-cat-select').value;
-        const t = document.getElementById('adm-tipo').value;
-        const p = parseFloat(document.getElementById('adm-preco').value);
+        const n = document.getElementById('adm-nome').value, c = document.getElementById('adm-cat-select').value, t = document.getElementById('adm-tipo').value, p = parseFloat(document.getElementById('adm-preco').value);
         if(!n || !p) return alert("Preencha tudo!");
         estoque.push({id: Date.now(), n, cat: c, tipo: t, p});
         localStorage.setItem('medela_estoque_v3', JSON.stringify(estoque));
-        renderAdmin();
-        alert("Salvo!");
+        renderAdmin(); alert("Salvo!");
     }
 
-    function admRemover(id) {
-        if(confirm("Excluir?")) {
-            estoque = estoque.filter(p => p.id !== id);
-            localStorage.setItem('medela_estoque_v3', JSON.stringify(estoque));
-            renderAdmin();
-        }
-    }
+    function admRemover(id) { if(confirm("Excluir?")) { estoque = estoque.filter(p => p.id !== id); localStorage.setItem('medela_estoque_v3', JSON.stringify(estoque)); renderAdmin(); } }
 
-    // --- UTIL ---
     function mascaraCPF(i) {
         let v = i.value.replace(/\D/g, "");
-        v = v.replace(/(\d{3})(\d)/, "$1.$2");
-        v = v.replace(/(\d{3})(\d)/, "$1.$2");
-        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d)/, "$1.$2"); v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
         i.value = v;
     }
 
     function logout() { localStorage.removeItem('medela_user_logado'); location.reload(); }
 
     function enviarWhatsApp() {
-        let msg = `*PEDIDO - MEDELA*\nCliente: ${userAtivo.nome}\nEndereço: ${userAtivo.end}\n\n`;
+        let msg = `*PEDIDO PAGO VIA PIX*\nCliente: ${userAtivo.nome}\nEndereço: ${userAtivo.end}\n\n`;
         carrinho.forEach(i => msg += `- ${i.n} (${i.qtd}${i.tipo}): R$ ${i.sub.toFixed(2)}\n`);
-        msg += `\n*TOTAL: ${document.getElementById('total-val').innerText}*`;
+        msg += `\n*TOTAL: ${document.getElementById('total-val').innerText}*\n\n*Estou enviando o comprovante em anexo abaixo:*`;
         window.open(`https://api.whatsapp.com/send?phone=5521977126638&text=${encodeURIComponent(msg)}`);
     }
 </script>
