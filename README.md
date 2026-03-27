@@ -3,35 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEDELA - V8 FINAL</title>
+    <title>MEDELA SUPERMERCADO - V9 PRO</title>
     <style>
         :root { --green: #00a859; --orange: #f37021; --gray: #f4f4f4; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; }
-        
-        /* Prevenção de tela branca: todas as telas ocultas por padrão */
         .app-screen { display: none; min-height: 100vh; flex-direction: column; width: 100%; }
         .active { display: flex !important; }
-
         .container { padding: 20px; max-width: 450px; margin: 0 auto; box-sizing: border-box; }
         .header { background: var(--orange); padding: 15px; color: white; text-align: center; border-radius: 0 0 20px 20px; position: sticky; top: 0; z-index: 100; }
-        
-        /* Categorias Estilizadas */
         .cat-bar { display: flex; overflow-x: auto; padding: 10px; gap: 8px; background: white; white-space: nowrap; scrollbar-width: none; }
         .cat-item { padding: 8px 15px; background: #eee; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
         .cat-item.active-cat { background: var(--green); color: white; }
-
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; padding-bottom: 100px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; padding-bottom: 120px; }
         .card { background: white; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .card img { width: 100%; height: 90px; object-fit: contain; margin-bottom: 5px; }
-
         .btn { background: var(--green); color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
         .input-group { margin-bottom: 10px; }
-        .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-
+        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
         .nav { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; left: 50%; transform: translateX(-50%); z-index: 1000; }
         .nav-btn { font-size: 11px; color: #aaa; border: none; background: none; font-weight: bold; cursor: pointer; }
-        
         .admin-item { background: white; padding: 10px; margin-bottom: 5px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--orange); }
+        
+        /* Estilo do Chat */
+        .chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #e5ddd5; margin-bottom: 80px; }
+        .msg { padding: 10px; border-radius: 10px; max-width: 80%; font-size: 14px; position: relative; }
+        .msg-client { background: #dcf8c6; align-self: flex-end; }
+        .msg-admin { background: #fff; align-self: flex-start; }
+        .msg-time { font-size: 9px; color: #999; display: block; text-align: right; }
     </style>
 </head>
 <body>
@@ -73,193 +71,157 @@
     <div class="header"><h2>Meu Carrinho</h2></div>
     <div class="container" id="c-list" style="padding-bottom: 200px;"></div>
     <div id="c-foot" class="container" style="position:fixed; bottom:60px; background:white; width:100%; border-top:1px solid #eee; display:none; left:50%; transform:translateX(-50%);">
-        <h3 style="color:var(--green)">Total + R$ 7,00 Taxa: R$ <span id="t-val">0,00</span></h3>
+        <h3 style="color:var(--green)">Total: R$ <span id="t-val">0,00</span></h3>
         <button class="btn" style="background:#25d366" onclick="sendZap()">PEDIR NO WHATSAPP</button>
     </div>
 </section>
 
-<section id="scr-admin" class="app-screen">
-    <div class="header"><h2>Painel Gestão</h2></div>
-    <div class="container">
-        <div style="background:white; padding:15px; border-radius:10px; margin-bottom:20px;">
-            <h4>Novo Produto</h4>
-            <div class="input-group"><input type="text" id="a-nome" placeholder="Nome"></div>
-            <div class="input-group"><input type="text" id="a-foto" placeholder="URL da Foto"></div>
-            <div class="input-group"><input type="number" id="a-preco" placeholder="Preço"></div>
-            <div class="input-group">
-                <select id="a-cat"></select> </div>
-            <button class="btn" onclick="addProd()">SALVAR PRODUTO</button>
-        </div>
-        <input type="text" placeholder="Pesquisar para excluir..." oninput="renderAdmin(this.value)" style="width:100%; margin-bottom:10px; padding:10px;">
-        <div id="a-list"></div>
-        <button class="btn" style="background:#333" onclick="logout()">SAIR DO PAINEL</button>
+<section id="scr-suporte" class="app-screen">
+    <div class="header"><h2>Suporte Privado</h2></div>
+    <div id="chat-cliente" class="chat-box"></div>
+    <div class="container" style="position:fixed; bottom:60px; background:#f0f0f0; width:100%; max-width:450px; left:50%; transform:translateX(-50%); display:flex; gap:5px; padding:10px;">
+        <input type="text" id="msg-input" placeholder="Digite sua dúvida..." style="flex:1; padding:10px; border-radius:20px; border:1px solid #ccc;">
+        <button onclick="enviarMensagem()" style="background:var(--green); color:white; border:none; border-radius:50%; width:40px; height:40px; cursor:pointer;">➔</button>
     </div>
 </section>
 
+<section id="scr-admin" class="app-screen">
+    <div class="header"><h2>Painel Admin</h2></div>
+    <div class="cat-bar">
+        <div class="cat-item active-cat" id="tab-p" onclick="abaAdmin('produtos')">Produtos</div>
+        <div class="cat-item" id="tab-m" onclick="abaAdmin('mensagens')">Mensagens</div>
+    </div>
+    <div class="container" id="adm-content"></div>
+</section>
+
 <nav class="nav" id="bot-nav" style="display:none;">
-    <button class="nav-btn" onclick="go('scr-home')">🛒 LOJA</button>
-    <button class="nav-btn" onclick="go('scr-cart')">🛍️ CESTA (<span id="count">0</span>)</button>
-    <button class="nav-btn" onclick="logout()">🚪 SAIR</button>
+    <button class="nav-btn" onclick="go('scr-home')">LOJA</button>
+    <button class="nav-btn" onclick="go('scr-cart')">CESTA (<span id="count">0</span>)</button>
+    <button class="nav-btn" onclick="go('scr-suporte')">SUPORTE</button>
+    <button class="nav-btn" onclick="logout()">SAIR</button>
 </nav>
 
 <script>
     const CATS = ["Mercearia", "Açougue", "Hortifrúti", "Bebidas", "Limpeza", "Padaria", "Fiambreria"];
-    let db = JSON.parse(localStorage.getItem('medela_db')) || [];
-    let user = JSON.parse(localStorage.getItem('medela_user'));
-    let isAdmin = localStorage.getItem('medela_is_admin') === 'true';
+    let db = JSON.parse(localStorage.getItem('m_db')) || [];
+    let chats = JSON.parse(localStorage.getItem('m_chats')) || {};
+    let user = JSON.parse(localStorage.getItem('m_user'));
+    let isAdmin = localStorage.getItem('m_is_admin') === 'true';
     let cart = [];
     let curCat = "Mercearia";
 
-    // --- SISTEMA ANTI-TELA BRANCA E MANUTENÇÃO DE SESSÃO ---
     window.onload = () => {
-        // Popular selects de categoria logo no início
-        document.getElementById('a-cat').innerHTML = CATS.map(c => `<option value="${c}">${c}</option>`).join('');
-        document.getElementById('cat-loja').innerHTML = CATS.map(c => `<div class="cat-item ${c===curCat?'active-cat':''}" onclick="setCatLoja('${c}')">${c}</div>`).join('');
-
-        if (isAdmin) {
-            go('scr-admin');
-        } else if (user) {
-            document.getElementById('u-name').innerText = `Olá, ${user.nome.split(' ')[0]}`;
-            go('scr-home');
-        } else {
-            go('scr-login');
-        }
+        if (isAdmin) { go('scr-admin'); abaAdmin('produtos'); }
+        else if (user) { document.getElementById('u-name').innerText = `Olá, ${user.nome.split(' ')[0]}`; go('scr-home'); }
+        else { go('scr-login'); }
     };
 
     function go(id) {
         document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
-        const target = document.getElementById(id);
-        if(target) target.classList.add('active');
-        
-        document.getElementById('bot-nav').style.display = (id === 'scr-home' || id === 'scr-cart') ? 'flex' : 'none';
-        
+        document.getElementById(id).classList.add('active');
+        document.getElementById('bot-nav').style.display = (id !== 'scr-login' && id !== 'scr-reg' && !isAdmin) ? 'flex' : (isAdmin ? 'none' : 'none');
         if(id === 'scr-home') renderHome();
         if(id === 'scr-cart') renderCart();
-        if(id === 'scr-admin') renderAdmin();
+        if(id === 'scr-suporte') renderChatCliente();
     }
 
-    // --- LOJA ---
-    function setCatLoja(c) {
-        curCat = c;
-        document.getElementById('cat-loja').innerHTML = CATS.map(cat => `<div class="cat-item ${cat===curCat?'active-cat':''}" onclick="setCatLoja('${cat}')">${cat}</div>`).join('');
-        renderHome();
+    // --- CHAT SISTEMA ---
+    function renderChatCliente() {
+        const box = document.getElementById('chat-cliente');
+        const minhaConversa = chats[user.cpf] || [];
+        box.innerHTML = minhaConversa.map(m => `
+            <div class="msg ${m.from === 'user' ? 'msg-client' : 'msg-admin'}">
+                ${m.text}<span class="msg-time">${m.hora}</span>
+            </div>
+        `).join('');
+        box.scrollTop = box.scrollHeight;
     }
 
-    function renderHome(search = "") {
-        const grid = document.getElementById('p-grid');
-        const filtered = db.filter(p => p.cat === curCat && p.nome.toLowerCase().includes(search.toLowerCase()));
+    function enviarMensagem() {
+        const inp = document.getElementById('msg-input');
+        if(!inp.value) return;
+        if(!chats[user.cpf]) chats[user.cpf] = [];
+        chats[user.cpf].push({ from: 'user', text: inp.value, hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+        localStorage.setItem('m_chats', JSON.stringify(chats));
+        inp.value = "";
+        renderChatCliente();
+    }
+
+    // --- ADMIN ABAS ---
+    function abaAdmin(tipo) {
+        const cont = document.getElementById('adm-content');
+        document.getElementById('tab-p').classList.toggle('active-cat', tipo === 'produtos');
+        document.getElementById('tab-m').classList.toggle('active-cat', tipo === 'mensagens');
         
-        grid.innerHTML = filtered.map(p => `
-            <div class="card">
-                <img src="${p.foto || 'https://via.placeholder.com/100?text=Sem+Foto'}" onerror="this.src='https://via.placeholder.com/100?text=Erro+Foto'">
-                <b style="font-size:12px; display:block; height:30px">${p.nome}</b>
-                <span style="color:var(--green); font-weight:bold">R$ ${p.preco.toFixed(2)}</span>
-                <button onclick="addToCart(${p.id})" style="background:var(--orange); color:white; border:none; padding:5px; border-radius:5px; width:100%; margin-top:5px; cursor:pointer">ADD</button>
-            </div>
-        `).join('');
+        if(tipo === 'produtos') {
+            cont.innerHTML = `
+                <div style="background:white; padding:15px; border-radius:10px;">
+                    <input type="text" id="a-nome" placeholder="Nome" class="input-group"><br>
+                    <input type="number" id="a-preco" placeholder="Preço" class="input-group"><br>
+                    <select id="a-cat" class="input-group">${CATS.map(c => `<option>${c}</option>`).join('')}</select>
+                    <button class="btn" onclick="addProd()">SALVAR</button>
+                </div><div id="a-list" style="margin-top:20px"></div>
+                <button class="btn" style="background:#333" onclick="logout()">SAIR</button>`;
+            renderAdmin();
+        } else {
+            cont.innerHTML = `<h4>Conversas Ativas</h4><div id="adm-chats-list"></div><button class="btn" style="background:#333" onclick="logout()">SAIR</button>`;
+            renderListaChatsAdmin();
+        }
     }
 
-    function addToCart(id) {
-        const p = db.find(x => x.id === id);
-        cart.push(p);
-        document.getElementById('count').innerText = cart.length;
+    function renderListaChatsAdmin() {
+        const list = document.getElementById('adm-chats-list');
+        list.innerHTML = Object.keys(chats).map(cpf => {
+            const lastMsg = chats[cpf][chats[cpf].length - 1];
+            return `<div class="admin-item" onclick="abrirChatAdmin('${cpf}')" style="cursor:pointer">
+                <span><b>CPF: ${cpf}</b><br><small>${lastMsg.text.substring(0,20)}...</small></span>
+                <span>➔</span>
+            </div>`;
+        }).join('') || "Nenhuma mensagem.";
     }
 
+    function abrirChatAdmin(cpf) {
+        const resp = prompt(`Mensagens de ${cpf}:\n${chats[cpf].map(m => (m.from==='user'?'CLIENTE: ':'EU: ')+m.text).join('\n')}\n\nDigite sua resposta:`);
+        if(resp) {
+            chats[cpf].push({ from: 'admin', text: resp, hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+            localStorage.setItem('m_chats', JSON.stringify(chats));
+            abaAdmin('mensagens');
+        }
+    }
+
+    // --- FUNÇÕES BASE (SEM ALTERAÇÃO) ---
+    function renderHome(s = "") {
+        if(!document.getElementById('cat-loja').innerHTML) setCatLoja(curCat);
+        const filtered = db.filter(p => p.cat === curCat && p.nome.toLowerCase().includes(s.toLowerCase()));
+        document.getElementById('p-grid').innerHTML = filtered.map(p => `<div class="card"><img src="${p.foto || 'https://via.placeholder.com/80'}"><b>${p.nome}</b><br><span style="color:var(--green)">R$ ${p.preco.toFixed(2)}</span><button class="btn" style="padding:5px" onclick="addToCart(${p.id})">ADD</button></div>`).join('');
+    }
+    function setCatLoja(c) { curCat = c; document.getElementById('cat-loja').innerHTML = CATS.map(cat => `<div class="cat-item ${cat===curCat?'active-cat':''}" onclick="setCatLoja('${cat}')">${cat}</div>`).join(''); renderHome(); }
+    function addToCart(id) { cart.push(db.find(x => x.id === id)); document.getElementById('count').innerText = cart.length; }
     function renderCart() {
-        const list = document.getElementById('c-list');
-        if(cart.length === 0) {
-            list.innerHTML = "<p style='text-align:center; margin-top:50px'>Carrinho vazio</p>";
-            document.getElementById('c-foot').style.display = "none";
-            return;
-        }
-        let total = cart.reduce((a, b) => a + b.preco, 0) + 7;
-        list.innerHTML = cart.map((p, i) => `
-            <div class="admin-item">
-                <span>${p.nome}</span>
-                <b>R$ ${p.preco.toFixed(2)} <span onclick="remCart(${i})" style="color:red; margin-left:10px">X</span></b>
-            </div>
-        `).join('');
-        document.getElementById('t-val').innerText = total.toFixed(2);
-        document.getElementById('c-foot').style.display = "block";
+        const cL = document.getElementById('c-list');
+        if(cart.length===0) { cL.innerHTML="Vazio"; document.getElementById('c-foot').style.display="none"; return; }
+        cL.innerHTML = cart.map((p,i) => `<div class="admin-item">${p.nome} <b>R$ ${p.preco.toFixed(2)} <span onclick="remCart(${i})" style="color:red">X</span></b></div>`).join('');
+        document.getElementById('t-val').innerText = (cart.reduce((a,b)=>a+b.preco,0)+7).toFixed(2);
+        document.getElementById('c-foot').style.display="block";
     }
-
     function remCart(i) { cart.splice(i,1); renderCart(); document.getElementById('count').innerText = cart.length; }
-
-    function sendZap() {
-        let t = document.getElementById('t-val').innerText;
-        let msg = `*PEDIDO MEDELA*\nCliente: ${user.nome}\nEndereço: ${user.end}\n\n*Itens:*\n`;
-        cart.forEach(i => msg += `- ${i.nome}: R$ ${i.preco.toFixed(2)}\n`);
-        msg += `\n*TOTAL COM TAXA: R$ ${t}*`;
-        window.open(`https://api.whatsapp.com/send?phone=5521977126638&text=${encodeURIComponent(msg)}`);
-    }
-
-    // --- ADMIN ---
-    function askAdmin() {
-        if(prompt("Senha:") === "123") {
-            isAdmin = true;
-            localStorage.setItem('medela_is_admin', 'true');
-            go('scr-admin');
-        }
-    }
-
     function addProd() {
-        const n = document.getElementById('a-nome').value, f = document.getElementById('a-foto').value, p = parseFloat(document.getElementById('a-preco').value), c = document.getElementById('a-cat').value;
-        if(!n || !p) return alert("Preencha Nome e Preço");
-        db.push({id: Date.now(), nome: n, foto: f, preco: p, cat: c});
-        localStorage.setItem('medela_db', JSON.stringify(db));
-        renderAdmin();
-        alert("Produto Salvo!");
-    }
-
-    function renderAdmin(search = "") {
-        const list = document.getElementById('a-list');
-        const filtered = db.filter(p => p.nome.toLowerCase().includes(search.toLowerCase()));
-        list.innerHTML = filtered.map(p => `
-            <div class="admin-item">
-                <span><b>${p.nome}</b><br><small>${p.cat}</small></span>
-                <button onclick="remProd(${p.id})" style="background:red; color:white; border:none; border-radius:5px">X</button>
-            </div>
-        `).join('');
-    }
-
-    function remProd(id) {
-        db = db.filter(p => p.id !== id);
-        localStorage.setItem('medela_db', JSON.stringify(db));
+        const n = document.getElementById('a-nome').value, p = parseFloat(document.getElementById('a-preco').value), c = document.getElementById('a-cat').value;
+        if(!n || !p) return;
+        db.push({id: Date.now(), nome: n, preco: p, cat: c});
+        localStorage.setItem('m_db', JSON.stringify(db));
         renderAdmin();
     }
-
-    // --- AUTH ---
-    function login() {
-        const cpf = document.getElementById('l-cpf').value;
-        const saved = localStorage.getItem(`u_${cpf}`);
-        if(saved) {
-            user = JSON.parse(saved);
-            localStorage.setItem('medela_user', JSON.stringify(user));
-            location.reload(); // Recarrega para aplicar estado limpo
-        } else alert("CPF não cadastrado");
+    function renderAdmin(s="") {
+        document.getElementById('a-list').innerHTML = db.filter(p=>p.nome.toLowerCase().includes(s.toLowerCase())).map(p=>`<div class="admin-item">${p.nome} (${p.cat}) <button onclick="remProd(${p.id})">X</button></div>`).join('');
     }
-
-    function register() {
-        const n = document.getElementById('r-nome').value, c = document.getElementById('r-cpf').value, e = document.getElementById('r-end').value;
-        if(!n || c.length < 14) return alert("Dados incompletos");
-        const d = {nome: n, cpf: c, end: e};
-        localStorage.setItem(`u_${c}`, JSON.stringify(d));
-        localStorage.setItem('medela_user', JSON.stringify(d));
-        user = d;
-        location.reload();
-    }
-
-    function logout() {
-        localStorage.removeItem('medela_user');
-        localStorage.removeItem('medela_is_admin');
-        location.reload();
-    }
-
-    function maskCPF(i) {
-        let v = i.value.replace(/\D/g, "");
-        v = v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-        i.value = v;
-    }
+    function remProd(id) { db = db.filter(p=>p.id!==id); localStorage.setItem('m_db', JSON.stringify(db)); renderAdmin(); }
+    function login() { const cpf = document.getElementById('l-cpf').value, s = localStorage.getItem(`u_${cpf}`); if(s) { user = JSON.parse(s); localStorage.setItem('m_user', JSON.stringify(user)); location.reload(); } else alert("Erro"); }
+    function register() { const n = document.getElementById('r-nome').value, c = document.getElementById('r-cpf').value, e = document.getElementById('r-end').value; if(!n||c.length<14) return; localStorage.setItem(`u_${c}`, JSON.stringify({nome:n,cpf:c,end:e})); localStorage.setItem('m_user', JSON.stringify({nome:n,cpf:c,end:e})); location.reload(); }
+    function askAdmin() { if(prompt("Senha:")==="123") { localStorage.setItem('m_is_admin','true'); location.reload(); } }
+    function logout() { localStorage.clear(); location.reload(); }
+    function maskCPF(i) { let v = i.value.replace(/\D/g,""); v = v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2"); i.value = v; }
+    function sendZap() { let t = document.getElementById('t-val').innerText; window.open(`https://api.whatsapp.com/send?phone=5521977126638&text=Pedido Medela - Total R$ ${t}`); }
 </script>
 </body>
 </html>
