@@ -8,10 +8,8 @@
         :root { --primary-green: #00a859; --orange-main: #f37021; --bg-gray: #f4f4f4; --white: #ffffff; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; color: #333; }
         
-        /* TELAS */
         .app-screen { display: none; min-height: 100vh; width: 100%; box-sizing: border-box; background: white; }
         .active { display: flex; flex-direction: column; }
-        
         .container { padding: 20px; max-width: 450px; margin: 0 auto; width: 100%; box-sizing: border-box; }
         
         /* FORMULÁRIOS */
@@ -20,45 +18,40 @@
         .logo-area span { color: var(--orange-main); }
         .input-group { margin-bottom: 12px; }
         .input-group label { display: block; font-size: 11px; color: #666; margin-bottom: 4px; font-weight: bold; }
-        .input-group input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; box-sizing: border-box; }
+        .input-group input, .input-group select { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; box-sizing: border-box; font-size: 14px; }
         
         /* BOTÕES */
         .btn-green { background: var(--primary-green); color: white; border: none; width: 100%; padding: 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
-        .btn-off { background: #ccc !important; cursor: not-allowed !important; }
+        .btn-add { background: var(--orange-main); padding: 10px; font-size: 12px; margin-top: 10px; }
+        .btn-remove { background: #ff4444; padding: 5px 10px; border-radius: 5px; color: white; border: none; cursor: pointer; font-size: 10px; }
 
-        /* HOME APP */
+        /* HOME E CARRINHO */
         .header-app { background: linear-gradient(135deg, var(--orange-main), #ff8c42); padding: 40px 20px; color: white; border-radius: 0 0 25px 25px; }
-        .economy-card { background: white; margin: -30px 20px 10px 20px; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; padding-bottom: 120px; }
+        .item-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .item-card img { width: 60px; height: 60px; margin-bottom: 10px; object-fit: contain; }
         
-        /* GRID DE MERCADO */
-        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; padding-bottom: 100px; }
-        .item-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 15px; text-align: center; position: relative; opacity: 0.8; }
-        .stock-tag { background: #ffeded; color: #d93025; font-size: 10px; font-weight: bold; padding: 4px; border-radius: 4px; position: absolute; top: 8px; right: 8px; }
-        .item-card img { width: 60px; height: 60px; filter: grayscale(1); margin-bottom: 10px; }
-        .item-name { font-size: 12px; font-weight: bold; margin: 5px 0; display: block; height: 30px; }
+        .cart-container { padding: 20px; margin-bottom: 180px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; background: #fff; margin-bottom: 5px; border-radius: 8px; }
+        
+        /* PAGAMENTO */
+        .payment-box { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-top: 15px; border: 1px dashed #ccc; }
+        #troco-box { display: none; margin-top: 10px; }
 
         /* NAV */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 100; }
-        .nav-item { font-size: 10px; color: #bbb; text-align: center; cursor: pointer; }
+        .nav-item { font-size: 10px; color: #bbb; text-align: center; cursor: pointer; border: none; background: none; position: relative; }
         .nav-active { color: var(--primary-green); font-weight: bold; }
+        .badge { background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: -10px; }
     </style>
 </head>
 <body>
 
     <section id="screen-login" class="app-screen active">
         <div class="container">
-            <div class="logo-area">
-                <h1>Medela<span> Supermercado</span></h1>
-                <p style="font-size: 14px; color: #888;">Acesse com CPF ou Gmail</p>
-            </div>
-            <div class="input-group">
-                <label>CPF ou E-mail</label>
-                <input type="text" id="login-id" placeholder="Digite aqui">
-            </div>
-            <div class="input-group">
-                <label>Senha</label>
-                <input type="password" id="login-pass" placeholder="••••••••">
-            </div>
+            <div class="logo-area"><h1>Medela<span> Supermercado</span></h1><p>Acesse sua conta</p></div>
+            <div class="input-group"><label>CPF ou E-mail</label><input type="text" id="login-id" placeholder="Digite aqui"></div>
+            <div class="input-group"><label>Senha</label><input type="password" id="login-pass" placeholder="••••••••"></div>
             <button class="btn-green" onclick="executarLogin()">Entrar</button>
             <p style="text-align:center; color: var(--primary-green); font-weight:bold; cursor:pointer; margin-top:25px;" onclick="irPara('screen-register')">Novo por aqui? Cadastre-se</p>
         </div>
@@ -66,97 +59,71 @@
 
     <section id="screen-register" class="app-screen">
         <div class="container">
-            <h2 style="color:var(--primary-green)">Cadastro Medela</h2>
-            <p style="font-size: 12px; color: #777; margin-bottom: 20px;">Verificação obrigatória: Maior de 18 anos.</p>
-            
-            <div class="input-group">
-                <label>* CPF (Será validado)</label>
-                <input type="text" id="reg-cpf" placeholder="000.000.000-00" oninput="mascaraCPF(this)">
-            </div>
-            <div class="input-group">
-                <label>* Nome Completo (Conforme documento)</label>
-                <input type="text" id="reg-nome" placeholder="Nome Sobrenome">
-            </div>
-            <div class="input-group">
-                <label>* Data de Nascimento</label>
-                <input type="date" id="reg-nascimento">
-            </div>
-            <div class="input-group">
-                <label>* Gmail</label>
-                <input type="email" id="reg-email" placeholder="seuemail@gmail.com">
-            </div>
-            <div class="input-group">
-                <label>* Senha</label>
-                <input type="password" id="reg-senha" placeholder="••••••••">
-            </div>
-            
-            <button class="btn-green" id="btn-cadastrar" onclick="finalizarCadastro()">Validar e Criar Conta</button>
-            <p style="text-align:center; cursor:pointer; color:#999; font-size: 14px;" onclick="irPara('screen-login')">Já tenho conta</p>
+            <h2 style="color:var(--primary-green)">Cadastro</h2>
+            <div class="input-group"><label>CPF</label><input type="text" id="reg-cpf" oninput="mascaraCPF(this)" placeholder="000.000.000-00"></div>
+            <div class="input-group"><label>Nome Completo</label><input type="text" id="reg-nome"></div>
+            <div class="input-group"><label>Data Nascimento</label><input type="date" id="reg-nascimento"></div>
+            <div class="input-group"><label>E-mail</label><input type="email" id="reg-email"></div>
+            <div class="input-group"><label>Endereço de Entrega</label><input type="text" id="reg-endereco" placeholder="Rua, Número, Bairro"></div>
+            <div class="input-group"><label>Senha</label><input type="password" id="reg-senha"></div>
+            <button class="btn-green" onclick="finalizarCadastro()">Criar Conta</button>
+            <p style="text-align:center; cursor:pointer;" onclick="irPara('screen-login')">Voltar</p>
         </div>
     </section>
 
     <section id="screen-home" class="app-screen">
-        <header class="header-app">
-            <h2 id="user-display" style="margin:0">Olá!</h2>
-            <p style="font-size:13px; opacity:0.9">Confira nossos setores abaixo:</p>
-        </header>
-
-        <div class="economy-card">
-            <span style="font-size:11px; color:#999;">Economia Sincronizada:</span>
-            <h2 style="color:var(--primary-green); margin:5px 0;">R$ 0,00</h2>
-        </div>
-
+        <header class="header-app"><h2 id="user-display">Olá!</h2><p>O que vamos comprar hoje?</p></header>
         <div class="market-grid">
-            <div class="item-card">
-                <span class="stock-tag">SEM ESTOQUE</span>
-                <img src="https://cdn-icons-png.flaticon.com/512/1134/1134444.png">
-                <span class="item-name">Contra Filé KG</span>
-                <button class="btn-green btn-off">Indisponível</button>
-            </div>
-            <div class="item-card">
-                <span class="stock-tag">SEM ESTOQUE</span>
-                <img src="https://cdn-icons-png.flaticon.com/512/415/415733.png">
-                <span class="item-name">Banana Prata Unid.</span>
-                <button class="btn-green btn-off">Indisponível</button>
-            </div>
-            <div class="item-card">
-                <span class="stock-tag">SEM ESTOQUE</span>
-                <img src="https://cdn-icons-png.flaticon.com/512/3122/3122042.png">
-                <span class="item-name">Cerveja Lata 350ml</span>
-                <button class="btn-green btn-off">Indisponível</button>
-            </div>
-            <div class="item-card">
-                <span class="stock-tag">SEM ESTOQUE</span>
-                <img src="https://cdn-icons-png.flaticon.com/512/2553/2553642.png">
-                <span class="item-name">Detergente Líquido</span>
-                <button class="btn-green btn-off">Indisponível</button>
-            </div>
-            <div class="item-card">
-                <span class="stock-tag">SEM ESTOQUE</span>
-                <img src="https://cdn-icons-png.flaticon.com/512/3014/3014545.png">
-                <span class="item-name">Pão Francês KG</span>
-                <button class="btn-green btn-off">Indisponível</button>
-            </div>
-            <div class="item-card">
-                <span class="stock-tag">SEM ESTOQUE</span>
-                <img src="https://cdn-icons-png.flaticon.com/512/2674/2674486.png">
-                <span class="item-name">Leite Integral 1L</span>
-                <button class="btn-green btn-off">Indisponível</button>
-            </div>
+            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/1134/1134444.png"><span class="item-name">Contra Filé KG</span><strong>R$ 39,90</strong><button class="btn-green btn-add" onclick="addAoCarrinho('Contra Filé', 39.90)">Adicionar</button></div>
+            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/415/415733.png"><span class="item-name">Banana KG</span><strong>R$ 5,50</strong><button class="btn-green btn-add" onclick="addAoCarrinho('Banana', 5.50)">Adicionar</button></div>
+            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/3014/3014545.png"><span class="item-name">Pão Francês KG</span><strong>R$ 14,90</strong><button class="btn-green btn-add" onclick="addAoCarrinho('Pão Francês', 14.90)">Adicionar</button></div>
+            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/2674/2674486.png"><span class="item-name">Leite 1L</span><strong>R$ 6,20</strong><button class="btn-green btn-add" onclick="addAoCarrinho('Leite', 6.20)">Adicionar</button></div>
         </div>
-
-        <nav class="bottom-nav">
-            <div class="nav-item nav-active">MERCADO</div>
-            <div class="nav-item">CUPONS</div>
-            <div class="nav-item" onclick="location.reload()">SAIR</div>
-        </nav>
     </section>
 
+    <section id="screen-cart" class="app-screen">
+        <header class="header-app"><h2>Meu Pedido</h2></header>
+        <div class="cart-container">
+            <div id="cart-list"></div>
+            
+            <div class="payment-box">
+                <div class="input-group">
+                    <label>FORMA DE PAGAMENTO</label>
+                    <select id="pay-method" onchange="checkPayMethod()">
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Cartão de Débito">Cartão de Débito</option>
+                        <option value="Pix">Pix</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                    </select>
+                </div>
+                <div id="troco-box" class="input-group">
+                    <label>PRECISA DE TROCO PARA QUANTO?</label>
+                    <input type="text" id="troco-valor" placeholder="Ex: 100,00">
+                </div>
+                <p style="font-size: 12px; color: #666;">Taxa de Entrega: <strong>R$ 5,00</strong></p>
+            </div>
+        </div>
+        
+        <div class="container" style="position: fixed; bottom: 70px; background: white; width: 100%; max-width: 450px; border-top: 2px solid var(--primary-green);">
+            <p style="font-size: 18px;"><strong>Total com Entrega: R$ <span id="cart-total">0,00</span></strong></p>
+            <button class="btn-green" onclick="enviarPedido()">Enviar Pedido no WhatsApp</button>
+        </div>
+    </section>
+
+    <nav class="bottom-nav">
+        <button class="nav-item nav-active" onclick="irPara('screen-home')">LOJA</button>
+        <button class="nav-item" onclick="irPara('screen-cart')">CARRINHO <span id="cart-count" class="badge">0</span></button>
+        <button class="nav-item" onclick="location.reload()">SAIR</button>
+    </nav>
+
     <script>
+        let carrinho = [];
+        let usuarioLogado = null;
+        const TAXA_ENTREGA = 5.00;
+
         function irPara(id) {
             document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            window.scrollTo(0,0);
         }
 
         function mascaraCPF(i) {
@@ -167,56 +134,96 @@
             i.value = v;
         }
 
-        function calcularIdade(data) {
-            const hoje = new Date();
-            const nasc = new Date(data);
-            let idade = hoje.getFullYear() - nasc.getFullYear();
-            if (hoje.getMonth() < nasc.getMonth() || (hoje.getMonth() === nasc.getMonth() && hoje.getDate() < nasc.getDate())) idade--;
-            return idade;
+        function checkPayMethod() {
+            const method = document.getElementById('pay-method').value;
+            document.getElementById('troco-box').style.display = (method === 'Dinheiro') ? 'block' : 'none';
         }
 
         function finalizarCadastro() {
-            const btn = document.getElementById('btn-cadastrar');
-            const cpf = document.getElementById('reg-cpf').value;
-            const nome = document.getElementById('reg-nome').value;
-            const dataNasc = document.getElementById('reg-nascimento').value;
-            const email = document.getElementById('reg-email').value.toLowerCase();
-            const senha = document.getElementById('reg-senha').value;
-
-            if (calcularIdade(dataNasc) < 18) {
-                alert("Cadastro negado: Você precisa ter 18 anos ou mais.");
-                return;
-            }
-
-            btn.innerText = "Validando com a base de dados...";
-            btn.disabled = true;
-
-            setTimeout(() => {
-                if (nome.trim().split(" ").length < 2) {
-                    alert("Erro: O Nome Completo não condiz com o CPF na base de dados.");
-                    btn.innerText = "Validar e Criar Conta";
-                    btn.disabled = false;
-                } else {
-                    const user = { nome, cpf, email, senha };
-                    localStorage.setItem(cpf, JSON.stringify(user));
-                    localStorage.setItem(email, JSON.stringify(user));
-                    alert("Sucesso! Cadastro validado.");
-                    irPara('screen-login');
-                }
-            }, 1500);
+            const dados = {
+                cpf: document.getElementById('reg-cpf').value,
+                nome: document.getElementById('reg-nome').value,
+                endereco: document.getElementById('reg-endereco').value,
+                email: document.getElementById('reg-email').value,
+                senha: document.getElementById('reg-senha').value
+            };
+            localStorage.setItem(dados.cpf, JSON.stringify(dados));
+            localStorage.setItem(dados.email, JSON.stringify(dados));
+            alert("Cadastro realizado!");
+            irPara('screen-login');
         }
 
         function executarLogin() {
-            const id = document.getElementById('login-id').value.toLowerCase();
+            const id = document.getElementById('login-id').value;
             const senha = document.getElementById('login-pass').value;
             const user = JSON.parse(localStorage.getItem(id));
-
             if (user && user.senha === senha) {
+                usuarioLogado = user;
                 document.getElementById('user-display').innerText = "Olá, " + user.nome.split(' ')[0];
                 irPara('screen-home');
-            } else {
-                alert("Erro: Dados incorretos ou CPF/Email não validado.");
+            } else { alert("Login ou Senha incorretos!"); }
+        }
+
+        function addAoCarrinho(nome, preco) {
+            carrinho.push({ nome, preco });
+            atualizarInterfaceCarrinho();
+        }
+
+        function removerDoCarrinho(index) {
+            carrinho.splice(index, 1);
+            atualizarInterfaceCarrinho();
+        }
+
+        function atualizarInterfaceCarrinho() {
+            const list = document.getElementById('cart-list');
+            const totalText = document.getElementById('cart-total');
+            const countBadge = document.getElementById('cart-count');
+            
+            list.innerHTML = "";
+            let subtotal = 0;
+
+            carrinho.forEach((item, index) => {
+                subtotal += item.preco;
+                list.innerHTML += `
+                    <div class="cart-item">
+                        <span>${item.nome} - R$ ${item.preco.toFixed(2)}</span>
+                        <button class="btn-remove" onclick="removerDoCarrinho(${index})">Remover</button>
+                    </div>`;
+            });
+
+            const totalGeral = carrinho.length > 0 ? subtotal + TAXA_ENTREGA : 0;
+            totalText.innerText = totalGeral.toFixed(2);
+            countBadge.innerText = carrinho.length;
+        }
+
+        function enviarPedido() {
+            if (carrinho.length === 0) { alert("Adicione produtos primeiro!"); return; }
+
+            const formaPagamento = document.getElementById('pay-method').value;
+            const troco = document.getElementById('troco-valor').value;
+
+            let texto = `*NOVO PEDIDO - MEDELA SUPERMERCADO*\n\n`;
+            texto += `*Cliente:* ${usuarioLogado.nome}\n`;
+            texto += `*CPF:* ${usuarioLogado.cpf}\n`;
+            texto += `*Endereço:* ${usuarioLogado.endereco}\n`;
+            texto += `----------------------------\n`;
+            texto += `*ITENS DO PEDIDO:*\n`;
+            
+            carrinho.forEach(item => {
+                texto += `• ${item.nome}: R$ ${item.preco.toFixed(2)}\n`;
+            });
+
+            texto += `----------------------------\n`;
+            texto += `*Taxa de Entrega:* R$ 5,00\n`;
+            texto += `*TOTAL GERAL:* R$ ${document.getElementById('cart-total').innerText}\n`;
+            texto += `*FORMA DE PAGAMENTO:* ${formaPagamento}\n`;
+            
+            if(formaPagamento === 'Dinheiro' && troco) {
+                texto += `*Levar troco para:* R$ ${troco}\n`;
             }
+
+            const url = `https://api.whatsapp.com/send?phone=5521977126638&text=${encodeURIComponent(texto)}`;
+            window.open(url, '_blank');
         }
     </script>
 </body>
