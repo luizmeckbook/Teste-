@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Terê - App</title>
+    <title>MEDELA SUPERMERCADO - App</title>
     <style>
         :root { --primary-green: #00a859; --orange-header: #f37021; --bg-gray: #f4f4f4; --text-dark: #333; }
         body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; color: var(--text-dark); }
         
-        /* Garante que nada fique invisível por erro */
         .app-screen { display: none; min-height: 100vh; width: 100%; box-sizing: border-box; background-color: var(--bg-gray); }
         .active { display: flex !important; flex-direction: column; }
         .container { padding: 20px; max-width: 450px; margin: 0 auto; width: 100%; box-sizing: border-box; }
         
         /* LOGIN & CADASTRO */
         .logo-main { text-align: center; margin: 30px 0; }
-        .logo-main img { width: 180px; }
+        .logo-main h1 { color: var(--primary-green); margin: 0; font-size: 28px; letter-spacing: -1px; }
         .welcome-text { text-align: center; color: #666; font-size: 14px; margin-bottom: 25px; }
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 12px; color: #444; margin-bottom: 5px; }
@@ -24,7 +23,7 @@
 
         /* HEADER */
         .header-orange { background: var(--orange-header); padding: 30px 20px; color: white; border-radius: 0 0 25px 25px; position: sticky; top: 0; z-index: 100; }
-        .search-box { margin-top: 15px; width: 100%; padding: 12px; border-radius: 8px; border: none; outline: none; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .search-box { margin-top: 15px; width: 100%; padding: 12px; border-radius: 8px; border: none; outline: none; font-size: 14px; }
 
         /* CATEGORIAS */
         .category-scroll { display: flex; overflow-x: auto; padding: 10px 20px; gap: 10px; background: #fff; white-space: nowrap; -webkit-overflow-scrolling: touch; border-bottom: 1px solid #eee; }
@@ -40,11 +39,11 @@
 
         /* CARRINHO */
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #fff; border-radius: 10px; margin-bottom: 8px; border: 1px solid #eee; }
-        .footer-cart { position: fixed; bottom: 65px; background: white; width: 100%; max-width: 450px; border-top: 1px solid #eee; padding: 15px; box-sizing: border-box; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); z-index: 999; }
+        .footer-cart { position: fixed; bottom: 65px; background: white; width: 100%; max-width: 450px; border-top: 1px solid #eee; padding: 15px; box-sizing: border-box; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); z-index: 999; left: 50%; transform: translateX(-50%); }
 
         /* NAVEGAÇÃO */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #eee; z-index: 1000; left: 50%; transform: translateX(-50%); }
-        .nav-item { font-size: 10px; color: #aaa; text-align: center; cursor: pointer; border: none; background: none; font-weight: bold; width: 33%; outline: none; }
+        .nav-item { font-size: 10px; color: #aaa; text-align: center; border: none; background: none; font-weight: bold; width: 33%; cursor: pointer; }
         .nav-active { color: var(--primary-green); }
         .cart-badge { background: #e31b1b; color: white; border-radius: 50%; padding: 2px 5px; font-size: 9px; margin-left: 3px; }
     </style>
@@ -53,8 +52,11 @@
 
     <section id="screen-login" class="app-screen active">
         <div class="container">
-            <div class="logo-main"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_X3GvC6R2p7zE0yLp-7X8v7p9C7N9n0W1w&s"></div>
-            <p class="welcome-text">Entre para ver nossos +500 produtos.</p>
+            <div class="logo-main">
+                <h1>MEDELA</h1>
+                <p style="margin:0; font-weight:bold; color:var(--orange-header); font-size:12px;">SUPERMERCADO</p>
+            </div>
+            <p class="welcome-text">Seja bem-vindo ao app oficial do Medela.</p>
             <div class="input-group"><label>CPF/CNPJ</label><input type="text" id="login-id" placeholder="000.000.000-00"></div>
             <div class="input-group"><label>Senha</label><input type="password" id="login-pass" placeholder="••••••••"></div>
             <button class="btn-green" onclick="executarLogin()">Entrar</button>
@@ -64,7 +66,7 @@
 
     <section id="screen-register" class="app-screen">
         <div class="container">
-            <h2 style="color:var(--primary-green);">Cadastrar</h2>
+            <h2 style="color:var(--primary-green);">Cadastrar no Medela</h2>
             <div class="input-group"><label>CPF/CNPJ</label><input type="text" id="reg-cpf" oninput="mascaraCPF(this)"></div>
             <div class="input-group"><label>Nome Completo</label><input type="text" id="reg-nome"></div>
             <div class="input-group"><label>Endereço de Entrega</label><input type="text" id="reg-endereco" placeholder="Rua, número, bairro"></div>
@@ -77,7 +79,7 @@
     <section id="screen-home" class="app-screen">
         <div class="header-orange">
             <h2 id="user-display">Olá!</h2>
-            <input type="text" class="search-box" id="search-input" placeholder="O que você procura hoje?" oninput="filtrarProdutos()">
+            <input type="text" class="search-box" id="search-input" placeholder="O que você procura hoje no Medela?" oninput="filtrarProdutos()">
         </div>
         <div class="category-scroll" id="cat-list"></div>
         <div class="market-grid" id="product-grid"></div>
@@ -115,16 +117,16 @@
             { cat: "Outros", itens: ["Ração Cão", "Ração Gato", "Areia Higiênica", "Pilhas AA", "Vela", "Fósforo"] }
         ];
 
-        let carrinho = [];
+        let carrinho = JSON.parse(localStorage.getItem('carrinhoSalvo')) || [];
         let usuarioLogado = null;
         let categoriaAtual = "Mercearia Seca";
 
-        // VERIFICA LOGIN AO CARREGAR
         window.onload = function() {
             const sessao = localStorage.getItem('sessaoAtiva');
             if (sessao) {
                 usuarioLogado = JSON.parse(sessao);
                 document.getElementById('user-display').innerText = "Olá, " + usuarioLogado.nome.split(' ')[0] + "!";
+                document.getElementById('cart-count').innerText = carrinho.length;
                 irPara('screen-home');
             } else {
                 irPara('screen-login');
@@ -132,17 +134,11 @@
         };
 
         function irPara(id) {
-            // Esconde todas
             document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
-            
-            // Mostra alvo
             const target = document.getElementById(id);
-            if (target) {
-                target.classList.add('active');
-            }
+            if (target) target.classList.add('active');
 
-            // Atualiza navegação
             if(id === 'screen-home') {
                 document.getElementById('nav-main-btn').classList.add('nav-active');
                 renderizarCategorias();
@@ -151,11 +147,6 @@
                 document.getElementById('nav-cart-btn').classList.add('nav-active');
                 renderizarCarrinho();
             }
-        }
-
-        function botaoPrincipalMenu() {
-            if (usuarioLogado) irPara('screen-home');
-            else irPara('screen-login');
         }
 
         function executarLogin() {
@@ -174,6 +165,12 @@
             window.location.reload();
         }
 
+        function setCat(cat) {
+            categoriaAtual = cat;
+            renderizarCategorias();
+            renderizarProdutos();
+        }
+
         function renderizarCategorias() {
             const list = document.getElementById('cat-list');
             list.innerHTML = produtosMaster.map(c => `
@@ -182,16 +179,9 @@
             `).join('');
         }
 
-        function setCat(cat) {
-            categoriaAtual = cat;
-            renderizarCategorias();
-            renderizarProdutos();
-        }
-
         function renderizarProdutos(filtro = "") {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = "";
-            
             produtosMaster.forEach(c => {
                 if (filtro === "" && c.cat !== categoriaAtual) return;
                 c.itens.forEach(item => {
@@ -214,6 +204,7 @@
         function addAoCarrinho(nome, preco) {
             if(!usuarioLogado) return irPara('screen-login');
             carrinho.push({ nome, preco });
+            localStorage.setItem('carrinhoSalvo', JSON.stringify(carrinho));
             document.getElementById('cart-count').innerText = carrinho.length;
         }
 
@@ -221,7 +212,7 @@
             const list = document.getElementById('cart-list');
             const footer = document.getElementById('cart-footer');
             if(carrinho.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#999; margin-top:50px;">Seu carrinho está vazio.</p>';
+                list.innerHTML = '<p style="text-align:center; color:#999; margin-top:50px;">Carrinho vazio.</p>';
                 footer.style.display = "none";
                 return;
             }
@@ -239,12 +230,13 @@
 
         function removerItem(index) {
             carrinho.splice(index, 1);
+            localStorage.setItem('carrinhoSalvo', JSON.stringify(carrinho));
             document.getElementById('cart-count').innerText = carrinho.length;
             renderizarCarrinho();
         }
 
         function enviarPedido() {
-            let msg = `*MEU TERÊ - PEDIDO*\n\nCliente: ${usuarioLogado.nome}\n`;
+            let msg = `*MEDELA SUPERMERCADO - NOVO PEDIDO*\n\n*Cliente:* ${usuarioLogado.nome}\n*Endereço:* ${usuarioLogado.endereco}\n\n`;
             carrinho.forEach(i => msg += `- ${i.nome}: R$ ${i.preco.toFixed(2)}\n`);
             msg += `\n*TOTAL: R$ ${document.getElementById('cart-total').innerText}*`;
             window.open(`https://api.whatsapp.com/send?phone=5521977126638&text=${encodeURIComponent(msg)}`);
@@ -255,7 +247,7 @@
             const nome = document.getElementById('reg-nome').value;
             if(cpf && nome) {
                 localStorage.setItem(cpf, JSON.stringify({nome, cpf, endereco: document.getElementById('reg-endereco').value}));
-                alert("Cadastro realizado!");
+                alert("Cadastro realizado no MEDELA!");
                 irPara('screen-login');
             }
         }
@@ -266,6 +258,11 @@
             v = v.replace(/(\d{3})(\d)/, "$1.$2");
             v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
             i.value = v;
+        }
+
+        function botaoPrincipalMenu() {
+            if (usuarioLogado) irPara('screen-home');
+            else irPara('screen-login');
         }
     </script>
 </body>
