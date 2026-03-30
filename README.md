@@ -14,29 +14,28 @@
         .container { padding: 15px; max-width: 600px; margin: auto; }
         .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
         
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        button { border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; width: 100%; transition: 0.3s; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; width: 100%; }
         .btn-main { background: var(--primary); }
         .btn-support { background: var(--whatsapp); margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
         .header { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         
-        /* Categorias Cliente */
-        .cat-nav { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; margin-bottom: 10px; scrollbar-width: none; }
-        .cat-nav::-webkit-scrollbar { display: none; }
-        .cat-btn { background: white; color: #333; border: 1px solid #ddd; padding: 8px 15px; border-radius: 20px; white-space: nowrap; width: auto; font-size: 14px; }
-        .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        /* Grid Produtos */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .prod-card { background: white; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #eee; }
-
-        /* Chat */
+        /* Estilo WhatsApp */
         .chat-screen { display: flex; flex-direction: column; height: 100vh; background: #e5ddd5; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
-        .msg { max-width: 80%; padding: 10px; border-radius: 10px; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .msg { max-width: 80%; padding: 10px; border-radius: 10px; font-size: 14px; position: relative; }
         .msg.sent { align-self: flex-end; background: #dcf8c6; }
         .msg.received { align-self: flex-start; background: white; }
+        
+        .chat-footer { padding: 10px; background: #f0f0f0; display: flex; gap: 5px; }
+        .chat-footer input { margin: 0; border-radius: 20px; }
+        .btn-send { width: 50px; border-radius: 50%; background: var(--whatsapp); }
+
+        .cat-nav { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; margin-bottom: 10px; }
+        .cat-btn { background: white; border: 1px solid #ddd; padding: 8px 15px; border-radius: 20px; white-space: nowrap; width: auto; }
+        .cat-btn.active { background: var(--primary); color: white; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     </style>
 </head>
 <body>
@@ -48,7 +47,7 @@
             <input id="lCpf" placeholder="CPF ou 'admin'">
             <input id="lSenha" type="password" placeholder="Senha">
             <button class="btn-main" onclick="entrar()">Entrar</button>
-            <button class="btn-support" onclick="abrirSuporteRapido()">💬 Suporte</button>
+            <button class="btn-support" onclick="abrirSuporteVisitante()">💬 Suporte</button>
             <p onclick="ir('cadastro')" style="color:var(--primary); cursor:pointer; margin-top:20px;">Criar Conta</p>
         </div>
     </div>
@@ -71,12 +70,10 @@
         <button style="width:auto; background:rgba(0,0,0,0.2)" onclick="sair()">Sair</button>
     </div>
     <div class="container">
-        <div class="cat-nav" id="catNavCliente">
-            </div>
-        <div class="grid" id="listaLoja">
-            </div>
+        <div class="cat-nav" id="catNav"></div>
+        <div class="grid" id="listaLoja"></div>
     </div>
-    <button onclick="ir('chat_suporte')" style="position:fixed; bottom:20px; right:20px; width:60px; height:60px; border-radius:50%; background:var(--whatsapp); border:none; font-size:25px; color:white; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">💬</button>
+    <button onclick="ir('chat')" style="position:fixed; bottom:20px; right:20px; width:60px; height:60px; border-radius:50%; background:var(--whatsapp); border:none; font-size:25px; color:white; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">💬</button>
 </div>
 
 <div id="admin" class="tela">
@@ -86,64 +83,58 @@
     </div>
     <div class="container">
         <div class="card">
-            <h3>🎨 Personalizar Site</h3>
-            <input id="cfgNome" placeholder="Nome do Supermercado">
+            <h3>🎨 Modelagem do Site</h3>
+            <input id="cfgNome" placeholder="Nome do Mercado">
             <input type="color" id="cfgCor">
-            <button onclick="salvarConfig()" class="btn-main">Aplicar</button>
+            <button onclick="salvarConfig()" class="btn-main">Salvar</button>
+        </div>
+
+        <div class="card">
+            <h3>💬 Conversas com Clientes</h3>
+            <div id="lista_chats_admin"></div>
         </div>
 
         <div class="card">
             <h3>📦 Novo Produto</h3>
-            <input id="pNome" placeholder="Nome do Produto">
-            <input id="pPreco" type="number" placeholder="Preço (Ex: 10.50)">
-            <label>Categoria:</label>
+            <input id="pNome" placeholder="Produto">
+            <input id="pPreco" type="number" placeholder="Preço">
             <select id="pCat">
-                <option value="Açougue">Açougue</option>
-                <option value="Bebida">Bebida</option>
-                <option value="Limpeza">Limpeza</option>
-                <option value="Padaria">Padaria</option>
-                <option value="Mercearia">Mercearia</option>
+                <option>Açougue</option><option>Bebida</option><option>Limpeza</option><option>Padaria</option><option>Mercearia</option>
             </select>
-            <button onclick="addProduto()" style="background:var(--admin-bg)">Adicionar ao Estoque</button>
+            <button onclick="addProduto()" style="background:var(--admin-bg)">Cadastrar</button>
         </div>
 
         <div class="card">
-            <h3>👥 Clientes e Senhas Visíveis</h3>
+            <h3>👥 Clientes e Senhas</h3>
             <div id="lista_usuarios_admin"></div>
-        </div>
-
-        <div class="card">
-            <h3>💬 Conversas</h3>
-            <div id="lista_chats_admin"></div>
         </div>
     </div>
 </div>
 
-<div id="chat_suporte" class="tela">
+<div id="chat" class="tela">
     <div class="chat-screen">
         <div class="header" style="background:#075e54">
-            <button onclick="voltarChat()" style="width:auto; background:none; font-size:20px">←</button>
-            <span id="chatNomeTopo">Suporte</span>
+            <button onclick="voltarDoChat()" style="width:auto; background:none; font-size:20px">←</button>
+            <span id="chatTitulo">Chat</span>
             <div style="width:30px"></div>
         </div>
         <div class="chat-messages" id="box_msgs"></div>
-        <div style="padding:10px; background:#f0f0f0; display:flex; gap:5px;">
-            <input id="msg_input" placeholder="Mensagem..." style="margin:0; border-radius:20px;">
-            <button onclick="enviarMsg()" style="width:50px; border-radius:50%; background:var(--whatsapp)">➤</button>
+        <div class="chat-footer">
+            <input id="msg_input" placeholder="Mensagem...">
+            <button class="btn-send" onclick="enviarMensagem()">➤</button>
         </div>
     </div>
 </div>
 
 <script>
-/* BANCO DE DADOS */
-let usuarios = JSON.parse(localStorage.getItem("med_users")) || {};
-let produtos = JSON.parse(localStorage.getItem("med_prod")) || [];
-let config = JSON.parse(localStorage.getItem("med_config")) || { nome: "Medela Supermercado", cor: "#e53935" };
-let mensagens = JSON.parse(localStorage.getItem("med_chat")) || {};
+let usuarios = JSON.parse(localStorage.getItem("m_users")) || {};
+let produtos = JSON.parse(localStorage.getItem("m_prod")) || [];
+let config = JSON.parse(localStorage.getItem("m_cfg")) || { nome: "Medela Supermercado", cor: "#e53935" };
+let mensagens = JSON.parse(localStorage.getItem("m_chat")) || {};
 
-let usuarioAtivo = ""; 
-let catAtual = "Todos";
-const CATEGORIAS = ["Todos", "Açougue", "Bebida", "Limpeza", "Padaria", "Mercearia"];
+let sessaoAtiva = ""; // CPF do usuário logado ou "admin"
+let clienteNoChat = ""; // CPF do cliente que está sendo atendido (pelo admin)
+let modoAdminChat = false;
 
 function aplicarConfig() {
     document.getElementById("brandName").innerText = "🛒 " + config.nome;
@@ -156,111 +147,130 @@ function ir(tela) {
     document.getElementById(tela).classList.add('ativa');
     if(tela === 'home') renderizarLoja();
     if(tela === 'admin') renderizarAdmin();
+    if(tela === 'chat') renderizarMensagens();
 }
 
 /* AUTH */
 function entrar() {
     let cpf = document.getElementById("lCpf").value;
     let senha = document.getElementById("lSenha").value;
-    if(cpf === 'admin' && senha === 'admin123') return ir('admin');
-    if(usuarios[cpf] && usuarios[cpf].senha === senha) {
-        usuarioAtivo = cpf;
-        ir('home');
-    } else { alert("Erro de login!"); }
+    if(cpf === 'admin' && senha === 'admin123') { sessaoAtiva = "admin"; return ir('admin'); }
+    if(usuarios[cpf] && usuarios[cpf].senha === senha) { sessaoAtiva = cpf; ir('home'); }
+    else { alert("Login inválido!"); }
 }
 
 function registrar() {
-    let nome = document.getElementById("cNome").value;
-    let cpf = document.getElementById("cCpf").value;
-    let senha = document.getElementById("cSenha").value;
-    if(!nome || !cpf || !senha) return alert("Preencha tudo!");
-    usuarios[cpf] = { nome, senha };
-    localStorage.setItem("med_users", JSON.stringify(usuarios));
+    let n = document.getElementById("cNome").value;
+    let c = document.getElementById("cCpf").value;
+    let s = document.getElementById("cSenha").value;
+    usuarios[c] = { nome: n, senha: s };
+    localStorage.setItem("m_users", JSON.stringify(usuarios));
     ir('login');
 }
 
-/* LOJA E CATEGORIAS */
-function renderizarLoja() {
-    document.getElementById("welcome").innerText = "Olá, " + (usuarios[usuarioAtivo] ? usuarios[usuarioAtivo].nome : "Visitante");
-    
-    // Menu de categorias
-    document.getElementById("catNavCliente").innerHTML = CATEGORIAS.map(c => `
-        <button class="cat-btn ${catAtual === c ? 'active' : ''}" onclick="filtrar('${c}')">${c}</button>
-    `).join('');
-
-    // Produtos Filtrados
-    let lista = catAtual === "Todos" ? produtos : produtos.filter(p => p.cat === catAtual);
-    document.getElementById("listaLoja").innerHTML = lista.map(p => `
-        <div class="prod-card">
-            <div style="font-size:30px">📦</div>
-            <strong>${p.nome}</strong><br>
-            <span style="color:green">R$ ${p.preco.toFixed(2)}</span><br>
-            <small>${p.cat}</small>
-            <button class="btn-main" style="margin-top:8px; font-size:12px">Adicionar</button>
-        </div>
-    `).join('') || "<p style='grid-column:1/-1'>Nenhum produto nesta categoria.</p>";
+/* CHAT LOGIC */
+function abrirSuporteVisitante() {
+    sessaoAtiva = "visitante_" + Math.floor(Math.random()*100);
+    clienteNoChat = sessaoAtiva;
+    modoAdminChat = false;
+    document.getElementById("chatTitulo").innerText = "Suporte Medela";
+    ir('chat');
 }
 
-function filtrar(c) { catAtual = c; renderizarLoja(); }
+function abrirChatAdmin(cpfCliente) {
+    clienteNoChat = cpfCliente;
+    modoAdminChat = true;
+    document.getElementById("chatTitulo").innerText = "Atendendo: " + (usuarios[cpfCliente] ? usuarios[cpfCliente].nome : "Visitante");
+    ir('chat');
+}
+
+function enviarMensagem() {
+    let input = document.getElementById("msg_input");
+    if(!input.value) return;
+    
+    let cpf = modoAdminChat ? clienteNoChat : sessaoAtiva;
+    if(!mensagens[cpf]) mensagens[cpf] = [];
+
+    mensagens[cpf].push({
+        texto: input.value,
+        autor: modoAdminChat ? 'admin' : 'cliente'
+    });
+
+    localStorage.setItem("m_chat", JSON.stringify(mensagens));
+    input.value = "";
+    renderizarMensagens();
+}
+
+function renderizarMensagens() {
+    let cpf = modoAdminChat ? clienteNoChat : sessaoAtiva;
+    let msgs = mensagens[cpf] || [];
+    let box = document.getElementById("box_msgs");
+    
+    box.innerHTML = msgs.map(m => `
+        <div class="msg ${m.autor === (modoAdminChat ? 'admin' : 'cliente') ? 'sent' : 'received'}">
+            ${m.texto}
+        </div>
+    `).join('');
+    box.scrollTop = box.scrollHeight;
+}
+
+function voltarDoChat() {
+    if(modoAdminChat) { modoAdminChat = false; ir('admin'); }
+    else if(sessaoAtiva.includes("visitante")) ir('login');
+    else ir('home');
+}
 
 /* ADMIN */
-function addProduto() {
-    let nome = document.getElementById("pNome").value;
-    let preco = parseFloat(document.getElementById("pPreco").value);
-    let cat = document.getElementById("pCat").value;
-    if(!nome || isNaN(preco)) return alert("Dados inválidos");
-    produtos.push({id: Date.now(), nome, preco, cat});
-    localStorage.setItem("med_prod", JSON.stringify(produtos));
-    alert("Produto salvo!");
-    renderizarAdmin();
-}
-
 function renderizarAdmin() {
-    // Listar usuários e senhas (como solicitado)
-    document.getElementById("lista_usuarios_admin").innerHTML = Object.keys(usuarios).map(cpf => `
-        <div style="border-bottom:1px solid #eee; padding:8px 0">
-            <b>${usuarios[cpf].nome}</b> | CPF: ${cpf} | Senha: <b style="color:red">${usuarios[cpf].senha}</b>
-        </div>
+    // Listar Senhas
+    document.getElementById("lista_usuarios_admin").innerHTML = Object.keys(usuarios).map(c => `
+        <div style="border-bottom:1px solid #eee; padding:5px"><b>${usuarios[c].nome}</b> | CPF: ${c} | Senha: <b style="color:red">${usuarios[c].senha}</b></div>
     `).join('');
 
-    // Listar Chats
-    document.getElementById("lista_chats_admin").innerHTML = Object.keys(mensagens).map(cpf => `
-        <button onclick="abrirChatAdmin('${cpf}')" style="background:#eee; color:#333; margin-bottom:5px">
-            Chat com: ${usuarios[cpf] ? usuarios[cpf].nome : cpf}
-        </button>
-    `).join('') || "Sem conversas.";
+    // Listar Conversas
+    document.getElementById("lista_chats_admin").innerHTML = Object.keys(mensagens).map(c => `
+        <div class="card" onclick="abrirChatAdmin('${c}')" style="cursor:pointer; border-left: 4px solid var(--whatsapp)">
+            Responder: <b>${usuarios[c] ? usuarios[c].nome : 'Visitante ('+c+')'}</b>
+        </div>
+    `).join('') || "Sem conversas novas.";
+}
+
+function addProduto() {
+    let n = document.getElementById("pNome").value;
+    let p = document.getElementById("pPreco").value;
+    let c = document.getElementById("pCat").value;
+    produtos.push({nome: n, preco: parseFloat(p), cat: c});
+    localStorage.setItem("m_prod", JSON.stringify(produtos));
+    alert("Adicionado!");
 }
 
 function salvarConfig() {
     config.nome = document.getElementById("cfgNome").value || config.nome;
     config.cor = document.getElementById("cfgCor").value;
-    localStorage.setItem("med_config", JSON.stringify(config));
+    localStorage.setItem("m_cfg", JSON.stringify(config));
     location.reload();
 }
 
-/* CHAT */
-function enviarMsg() {
-    let input = document.getElementById("msg_input");
-    if(!input.value) return;
-    if(!usuarioAtivo) usuarioAtivo = "visitante_" + Math.floor(Math.random()*100);
-    if(!mensagens[usuarioAtivo]) mensagens[usuarioAtivo] = [];
-    mensagens[usuarioAtivo].push({ texto: input.value, autor: 'cliente' });
-    localStorage.setItem("med_chat", JSON.stringify(mensagens));
-    input.value = ""; renderizarMsgs();
-}
-
-function renderizarMsgs() {
-    let msgs = mensagens[usuarioAtivo] || [];
-    document.getElementById("box_msgs").innerHTML = msgs.map(m => `
-        <div class="msg ${m.autor === 'cliente' ? 'sent' : 'received'}">${m.texto}</div>
+/* LOJA CLIENTE */
+function renderizarLoja() {
+    document.getElementById("welcome").innerText = "Olá, " + (usuarios[sessaoAtiva]?.nome || "Cliente");
+    document.getElementById("catNav").innerHTML = ["Todos", "Açougue", "Bebida", "Limpeza", "Padaria", "Mercearia"].map(c => `
+        <button class="cat-btn" onclick="renderizarLojaFiltrada('${c}')">${c}</button>
     `).join('');
-    document.getElementById("box_msgs").scrollTop = 9999;
+    renderizarLojaFiltrada("Todos");
 }
 
-function abrirSuporteRapido() { ir('chat_suporte'); renderizarMsgs(); }
-function voltarChat() { ir(usuarioAtivo.includes("visitante") ? 'login' : 'home'); }
-function sair() { location.reload(); }
+function renderizarLojaFiltrada(cat) {
+    let lista = cat === "Todos" ? produtos : produtos.filter(p => p.cat === cat);
+    document.getElementById("listaLoja").innerHTML = lista.map(p => `
+        <div class="card" style="text-align:center">
+            <strong>${p.nome}</strong><br>
+            <span style="color:green">R$ ${p.preco.toFixed(2)}</span>
+        </div>
+    `).join('') || "Nenhum produto aqui.";
+}
 
+function sair() { location.reload(); }
 window.onload = aplicarConfig;
 </script>
 </body>
