@@ -30,24 +30,9 @@
         .cat-btn.active { background: var(--primary); color: white; }  
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }  
 
-        /* BARRA DO CARRINHO - CORRIGIDA */
-        .cart-bar { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            background: #333; 
-            color: white; 
-            padding: 20px; 
-            display: none; 
-            justify-content: space-between; 
-            align-items: center; 
-            z-index: 200; 
-            border-radius: 20px 20px 0 0; 
-            cursor: pointer;
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
-        }
+        .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 20px; display: none; justify-content: space-between; align-items: center; z-index: 200; border-radius: 20px 20px 0 0; cursor: pointer; box-shadow: 0 -4px 10px rgba(0,0,0,0.2); }
         .remove-btn { background: #ff5252; padding: 5px 10px; width: auto; font-size: 11px; }
+        .profit-badge { background: #e8f5e9; color: #2e7d32; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
     </style>
 </head>  
 <body>  
@@ -86,13 +71,11 @@
         <div class="cat-nav" id="catNav"></div>  
         <div class="grid" id="listaLoja"></div>  
     </div>  
-    
     <div class="cart-bar" id="cartBar" onclick="ir('carrinho')">
         <span>🛒 <b id="cartCount">0</b> itens</span>
         <b id="cartTotal">R$ 0,00</b>
         <span style="background:var(--whatsapp); padding:5px 10px; border-radius:8px">ABRIR</span>
     </div>
-
     <button onclick="ir('chat')" style="position:fixed; bottom:90px; right:20px; width:60px; height:60px; border-radius:50%; background:var(--whatsapp); border:none; font-size:25px; color:white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 150;">💬</button>  
 </div>  
 
@@ -134,15 +117,18 @@
             <button onclick="salvarConfigSemRefresh()" class="btn-main">Aplicar Agora</button>  
         </div>  
         <div class="card">  
-            <h3>📦 Novo Produto</h3>  
-            <input id="pNome" placeholder="Produto">  
-            <input id="pPreco" type="number" placeholder="Preço">  
+            <h3>📦 Novo Produto (Balanceamento)</h3>  
+            <input id="pNome" placeholder="Nome do Produto">  
+            <div style="display:flex; gap:10px">
+                <input id="pBruto" type="number" placeholder="Preço Bruto (Custo)">  
+                <input id="pLiquido" type="number" placeholder="Preço Líquido (Venda)">
+            </div>
             <select id="pCat">  
                 <option>Açougue</option><option>Bebida</option><option>Limpeza</option><option>Padaria</option><option>Mercearia</option>  
             </select>  
-            <button onclick="addProduto()" style="background:var(--admin-bg)">Cadastrar</button>  
+            <button onclick="addProduto()" style="background:var(--admin-bg)">Cadastrar e Salvar</button>  
             <hr>
-            <div id="admin_lista_excluir" style="margin-top:10px;"></div>
+            <div id="admin_lista_excluir" style="margin-top:10px; max-height: 300px; overflow-y: auto;"></div>
         </div>  
         <div class="card">  
             <h3>💬 Conversas Ativas</h3>  
@@ -215,7 +201,7 @@ function registrar() {
     ir('login');  
 }  
 
-/* LOGICA DO CARRINHO */
+/* CARRINHO */
 function addCarrinho(idUnico) {
     let p = produtos.find(item => item.id === idUnico);
     carrinho.push(p);
@@ -229,7 +215,7 @@ function removerCarrinho(index) {
 }
 
 function atualizarBarraCarrinho() {
-    let total = carrinho.reduce((a, b) => a + b.preco, 0);
+    let total = carrinho.reduce((a, b) => a + b.liquido, 0);
     let bar = document.getElementById("cartBar");
     if(carrinho.length > 0) {
         bar.style.display = "flex";
@@ -244,11 +230,11 @@ function renderizarCarrinho() {
     let html = "";
     carrinho.forEach((p, i) => {
         html += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-            <div><b>${p.nome}</b><br>R$ ${p.preco.toFixed(2)}</div>
+            <div><b>${p.nome}</b><br>R$ ${p.liquido.toFixed(2)}</div>
             <button class="remove-btn" onclick="removerCarrinho(${i})">Remover</button>
         </div>`;
     });
-    document.getElementById("listaItensCarrinho").innerHTML = html || "<p style='text-align:center; padding:20px;'>Seu carrinho está vazio</p>";
+    document.getElementById("listaItensCarrinho").innerHTML = html || "<p style='text-align:center; padding:20px;'>Carrinho vazio</p>";
     document.getElementById("cardPagamento").style.display = carrinho.length > 0 ? "block" : "none";
 }
 
@@ -260,38 +246,32 @@ function toggleTroco() {
 function finalizarPedido() {
     let metodo = document.getElementById("metodoPagamento").value;
     if(!metodo) return alert("Escolha a forma de pagamento");
-    
-    let total = carrinho.reduce((a, b) => a + b.preco, 0);
+    let total = carrinho.reduce((a, b) => a + b.liquido, 0);
     let msg = `*Novo Pedido - ${config.nome}*\n\n`;
-    carrinho.forEach(p => msg += `- ${p.nome}: R$ ${p.preco.toFixed(2)}\n`);
-    msg += `\n*Total:* R$ ${total.toFixed(2)}`;
-    msg += `\n*Pagamento:* ${metodo}`;
-    
+    carrinho.forEach(p => msg += `- ${p.nome}: R$ ${p.liquido.toFixed(2)}\n`);
+    msg += `\n*Total:* R$ ${total.toFixed(2)}\n*Pagamento:* ${metodo}`;
     if(metodo === "Dinheiro") {
         let troco = document.getElementById("valorTroco").value;
-        msg += troco ? `\n*Troco para:* R$ ${troco}` : `\n*Sem necessidade de troco*`;
+        msg += troco ? `\n*Troco para:* R$ ${troco}` : `\n*Sem troco*`;
     }
-    
     window.open(`https://wa.me/55?text=${encodeURIComponent(msg)}`);
 }
 
-/* SISTEMA DA LOJA */
+/* LOJA CLIENTE */
 function renderizarLoja() {  
     document.getElementById("welcome").innerText = "Olá, " + (usuarios[sessaoAtiva]?.nome || "Cliente");  
     const cats = ["Todos", "Açougue", "Bebida", "Limpeza", "Padaria", "Mercearia"];  
     document.getElementById("catNav").innerHTML = cats.map(c => `<button class="cat-btn ${categoriaAtual === c ? 'active' : ''}" onclick="filtrar('${c}')">${c}</button>`).join('');  
-    
     let pesquisa = document.getElementById("pesquisaLoja").value.toLowerCase();
     let filtrados = categoriaAtual === "Todos" ? produtos : produtos.filter(p => p.cat === categoriaAtual);
     if(pesquisa) filtrados = filtrados.filter(p => p.nome.toLowerCase().includes(pesquisa));
 
     document.getElementById("listaLoja").innerHTML = filtrados.map((p) => `
         <div class="card" style="text-align:center">  
-            <strong>${p.nome}</strong><br><span style="color:green">R$ ${p.preco.toFixed(2)}</span>
+            <strong>${p.nome}</strong><br><span style="color:green">R$ ${p.liquido.toFixed(2)}</span>
             <button class="btn-main" onclick="addCarrinho(${p.id})" style="margin-top:10px; padding:5px; font-size:12px;">+ Adicionar</button>
         </div>`).join('') || "Nenhum produto.";  
 }  
-
 function filtrar(c) { categoriaAtual = c; renderizarLoja(); }
 
 /* ADMIN SYSTEM */  
@@ -300,24 +280,38 @@ function renderizarAdmin() {
         <div style="border-bottom:1px solid #eee; padding:5px"><b>${usuarios[c].nome}</b> | Senha: <b style="color:red">${usuarios[c].senha}</b></div>  
     `).join('');  
     
-    document.getElementById("admin_lista_excluir").innerHTML = produtos.map((p, i) => `
-        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:12px">
-            <span>${p.nome}</span>
-            <button onclick="excluirProd(${i})" style="background:red; padding:2px 5px; width:auto">Excluir</button>
-        </div>
-    `).join('');
+    document.getElementById("admin_lista_excluir").innerHTML = produtos.map((p, i) => {
+        let lucro = p.liquido - p.bruto;
+        return `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:12px; border-bottom:1px solid #eee; padding-bottom:5px">
+            <div>
+                <b>${p.nome}</b><br>
+                B: R$ ${p.bruto.toFixed(2)} | L: R$ ${p.liquido.toFixed(2)} 
+                <span class="profit-badge">Lucro: R$ ${lucro.toFixed(2)}</span>
+            </div>
+            <button onclick="excluirProd(${i})" style="background:red; padding:4px 8px; width:auto">Excluir</button>
+        </div>`;
+    }).join('');
 }  
 
 function addProduto() {  
     let n = document.getElementById("pNome").value;  
-    let p = document.getElementById("pPreco").value;  
+    let b = document.getElementById("pBruto").value;  
+    let l = document.getElementById("pLiquido").value;  
     let c = document.getElementById("pCat").value;  
-    if(!n || !p) return;
-    // Criar um ID único para evitar erros na busca
-    produtos.push({id: Date.now() + Math.random(), nome: n, preco: parseFloat(p), cat: c});  
+    if(!n || !b || !l) return alert("Preencha Nome, Bruto e Líquido");
+    produtos.push({
+        id: Date.now() + Math.random(), 
+        nome: n, 
+        bruto: parseFloat(b), 
+        liquido: parseFloat(l), 
+        cat: c
+    });  
     localStorage.setItem("m_prod", JSON.stringify(produtos));  
+    document.getElementById("pNome").value = "";
+    document.getElementById("pBruto").value = "";
+    document.getElementById("pLiquido").value = "";
     renderizarAdmin();  
-    alert("Produto Adicionado!");  
 }  
 
 function excluirProd(i) {
@@ -336,49 +330,28 @@ function salvarConfigSemRefresh() {
     alert("Configurações aplicadas!");  
 }  
   
-function voltarParaLogin() {  
-    sessaoAtiva = "";  
-    carrinho = [];
-    ir('login');  
-}  
+function voltarParaLogin() { sessaoAtiva = ""; carrinho = []; ir('login'); }  
 
-/* CHAT SYSTEM */
-function abrirSuporteVisitante() {  
-    sessaoAtiva = "visitante_" + Math.floor(Math.random()*999);  
-    clienteNoChat = sessaoAtiva;  
-    modoAdminChat = false;  
-    document.getElementById("chatTitulo").innerText = "Suporte Online";  
-    ir('chat');  
+/* CHAT */
+function abrirSuporteVisitante() { sessaoAtiva = "visitante_" + Math.floor(Math.random()*999); clienteNoChat = sessaoAtiva; modoAdminChat = false; document.getElementById("chatTitulo").innerText = "Suporte Online"; ir('chat'); }  
+function abrirChatAdmin(cpf) { clienteNoChat = cpf; modoAdminChat = true; document.getElementById("chatTitulo").innerText = "Chat: " + (usuarios[cpf]?.nome || cpf); ir('chat'); }  
+function enviarMensagem() { 
+    let input = document.getElementById("msg_input"); 
+    if(!input.value) return; 
+    let idChat = modoAdminChat ? clienteNoChat : sessaoAtiva; 
+    if(!mensagens[idChat]) mensagens[idChat] = []; 
+    mensagens[idChat].push({ texto: input.value, autor: modoAdminChat ? 'admin' : 'cliente' }); 
+    localStorage.setItem("m_chat", JSON.stringify(mensagens)); 
+    input.value = ""; 
+    renderizarMensagens(); 
 }  
-function abrirChatAdmin(cpf) {  
-    clienteNoChat = cpf;  
-    modoAdminChat = true;  
-    document.getElementById("chatTitulo").innerText = "Chat: " + (usuarios[cpf]?.nome || cpf);  
-    ir('chat');  
+function renderizarMensagens() { 
+    let idChat = modoAdminChat ? clienteNoChat : sessaoAtiva; 
+    let msgs = mensagens[idChat] || []; 
+    document.getElementById("box_msgs").innerHTML = msgs.map(m => `<div class="msg ${m.autor === (modoAdminChat ? 'admin' : 'cliente') ? 'sent' : 'received'}">${m.texto}</div>`).join(''); 
+    document.getElementById("box_msgs").scrollTop = 9999; 
 }  
-function enviarMensagem() {  
-    let input = document.getElementById("msg_input");  
-    if(!input.value) return;  
-    let idChat = modoAdminChat ? clienteNoChat : sessaoAtiva;  
-    if(!mensagens[idChat]) mensagens[idChat] = [];  
-    mensagens[idChat].push({ texto: input.value, autor: modoAdminChat ? 'admin' : 'cliente' });  
-    localStorage.setItem("m_chat", JSON.stringify(mensagens));  
-    input.value = "";  
-    renderizarMensagens();  
-}  
-function renderizarMensagens() {  
-    let idChat = modoAdminChat ? clienteNoChat : sessaoAtiva;  
-    let msgs = mensagens[idChat] || [];  
-    document.getElementById("box_msgs").innerHTML = msgs.map(m => `  
-        <div class="msg ${m.autor === (modoAdminChat ? 'admin' : 'cliente') ? 'sent' : 'received'}">${m.texto}</div>  
-    `).join('');  
-    document.getElementById("box_msgs").scrollTop = 9999;  
-}  
-function voltarDoChat() {  
-    if(modoAdminChat) ir('admin');  
-    else if(sessaoAtiva.includes("visitante")) ir('login');  
-    else ir('home');  
-}  
+function voltarDoChat() { if(modoAdminChat) ir('admin'); else if(sessaoAtiva.includes("visitante")) ir('login'); else ir('home'); }  
 
 window.onload = aplicarEstilos;  
 </script>  
