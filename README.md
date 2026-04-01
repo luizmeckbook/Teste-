@@ -103,6 +103,10 @@
                 <input id="valorTroco" type="number" placeholder="Troco para quanto?">
             </div>
             <button class="btn-main" onclick="finalizarPedido()" style="margin-top:15px; background:var(--whatsapp)">Finalizar via WhatsApp</button>
+            function abrirSuporteVisitante() {
+    window.open(`https://wa.me/55 21 975873476
+}
+            
         </div>
     </div>
 </div>
